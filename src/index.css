@@ -1,0 +1,29 @@
+body {
+  background-color: #F7F9FB;
+  font-family: 'Roboto', sans-serif;
+}
+
+.MuiTableCell-root {
+  color: #333;
+}
+
+.MuiPaper-root {
+  border-radius: 8px;
+}
+
+.MuiButton-containedSecondary {
+  background-color: #9EDE73;
+  color: #fff;
+}
+
+.MuiButton-containedSecondary:hover {
+  background-color: #83D9C8;
+}
+
+.MuiTableHead-root {
+  background-color: #45BF55;
+}
+
+.MuiTypography-h4 {
+  font-weight: bold;
+}
