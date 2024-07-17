@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Paper, CircularProgress, Box } from '@mui/material';
+import { Container, Typography, Paper, CircularProgress, Box, IconButton, Tooltip } from '@mui/material';
+import FaceIcon from '@mui/icons-material/Face';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import StudentTable from './StudentTable';
 import CourseTable from './CourseTable';
+import './css/Dash.css';
 
-
-const Dashboard = () => {
+const Dashboard = ({ onLogout }) => {
   const [students, setStudents] = useState([]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,15 +32,30 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
+  const handleFaceRecognitionClick = () => {
+    navigate('/face-recognition');
+  };
+
   return (
-    <div className=".Dashbody">
+    <div className="Dashbody">
+      <Box display="flex" justifyContent="space-between" alignItems="center" p={2} mb={2}>
+       
+        <Box>
+          <Tooltip title="Face Recognition Module">
+            <IconButton onClick={handleFaceRecognitionClick} color="primary" className="large-icon">
+              <FaceIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+    
+      </Box>
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" height="100%">
           <CircularProgress />
         </Box>
       ) : (
         <>
-          <Paper >
+          <Paper>
             <StudentTable students={students} />
           </Paper>
 

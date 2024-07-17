@@ -19,38 +19,39 @@ const AuthForm = ({ onAuth }) => {
   };
 
   return (
-    <div className='auth-body'>
-    <Paper elevation={3} className="auth-form-container">
-      <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 3 }}>
-        <Typography variant="h4" align="center">Login</Typography>
-        <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-          <PersonIcon sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
-          <TextField
-            label="Username"
-            value={hash_usuario}
-            onChange={(e) => setHashUsuario(e.target.value)}
-            required
-            fullWidth
+    <div className="auth-body">
+      <Paper elevation={3} className="auth-form-container">
+        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 3 }}>
+          <Typography variant="h4" align="center">Login</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+            <PersonIcon sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
+            <TextField
+              label="Username"
+              value={hash_usuario}
+              onChange={(e) => setHashUsuario(e.target.value)}
+              required
+              fullWidth
+            />
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+            <LockIcon sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
+            <TextField
+              label="Password"
+              type="password"
+              value={hash_password}
+              onChange={(e) => setHashPassword(e.target.value)}
+              required
+              fullWidth
+            />
+          </Box>
+          <FormControlLabel
+            control={<Checkbox name="remember" color="primary" />}
+            label="Remember me"
           />
+          <Button type="submit" variant="contained" color="primary" fullWidth>Login</Button>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-          <LockIcon sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
-          <TextField
-            label="Password"
-            type="password"
-            value={hash_password}
-            onChange={(e) => setHashPassword(e.target.value)}
-            required
-            fullWidth
-          />
-        </Box>
-        <FormControlLabel
-          control={<Checkbox name="remember" color="primary" />}
-          label="Remember me"
-        />
-        <Button type="submit" variant="contained" color="primary" fullWidth>Login</Button>
-      </Box>
-    </Paper></div>
+      </Paper>
+    </div>
   );
 };
 

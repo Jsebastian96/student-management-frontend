@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Container, CssBaseline, AppBar, Toolbar, Typography, Box } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Container, CssBaseline, AppBar, Toolbar, Typography, Box, Button } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import AuthForm from './components/AuthForm';
@@ -23,11 +23,24 @@ const theme = createTheme({
 });
 
 const App = () => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
   const handleAuth = (userData) => {
+    localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
+  };
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedUser) {
+      setUser(storedUser);
+    }
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -44,13 +57,15 @@ const App = () => {
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                   Student Management System
                 </Typography>
+                <Button color="inherit" onClick={handleLogout}>Logout</Button>
               </Toolbar>
             </AppBar>
             <Container sx={{ mt: 4 }}>
               <Routes>
                 <Route path="/" element={<Navigate to={user.role === 'admin' ? '/dashboard' : '/profile'} />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profile" element={<StudentProfile />} />
+                <Route path="/dashboard" element={<Dashboard onLogout={handleLogout} />} />
+                <Route path="/profile" element={<StudentProfile user={user} onLogout={handleLogout} />} />
+                <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </Container>
           </>

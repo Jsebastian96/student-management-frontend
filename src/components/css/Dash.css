@@ -31,4 +31,14 @@ body {
     padding: 2px;
     color: #ffffff !important;
   }
+  .large-icon {
+    transform: scale(2.5); /* Incrementa el tamaño del icono */
+  }
   
+  .Dashbody {
+    padding: 20px;
+  }
+  
+  .table-container {
+    margin-top: 20px;
+  }

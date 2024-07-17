@@ -1,50 +1,90 @@
-import React, { useState } from 'react';
-import { Container, Typography, TextField, Button, Box } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box, TextField, Button, Typography, Paper, CircularProgress, IconButton, Tooltip } from '@mui/material';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import axios from 'axios';
 
-const StudentProfile = ({ user }) => {
-  const [photo, setPhoto] = useState(null);
+const StudentProfile = ({ user, onLogout }) => {
+  const [student, setStudent] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handlePhotoChange = (e) => {
-    setPhoto(e.target.files[0]);
+  useEffect(() => {
+    const fetchStudent = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`/api/estudiantes/${user.estudiante_id}`);
+        setStudent(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching student:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchStudent();
+  }, [user.estudiante_id]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setStudent((prevStudent) => ({
+      ...prevStudent,
+      [name]: value,
+    }));
   };
 
-  const handlePhotoUpload = async () => {
-    const formData = new FormData();
-    formData.append('photo_estudiante', photo);
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const response = await axios.post(`/api/estudiantes/${user._id}`, formData);
-      if (response.ok) {
-        alert('Foto actualizada exitosamente');
-      } else {
-        alert('Error al actualizar la foto');
-      }
+      await axios.put(`/api/estudiantes/${user.estudiante_id}`, student);
+      alert('Profile updated successfully');
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error updating profile:', error);
+      alert('Error updating profile');
     }
   };
 
   return (
-    <Container>
-      <Box mt={4}>
-        <Typography variant="h4">Perfil de Estudiante</Typography>
-        <Typography variant="h6">Nombre: {user.nombre_name}</Typography>
-        <Typography variant="h6">Apellido: {user.apellido}</Typography>
-        <Typography variant="h6">Documento: {user.numero_documento}</Typography>
-        <Box mt={2}>
-          <input type="file" onChange={handlePhotoChange} />
-          <Button variant="contained" color="primary" onClick={handlePhotoUpload}>
-            Subir Foto
-          </Button>
-        </Box>
-        {user.photo_estudiante && (
-          <Box mt={2}>
-            <img src={`/${user.photo_estudiante}`} alt="Estudiante" style={{ width: '100px' }} />
-          </Box>
-        )}
+    <Box sx={{ p: 3 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h4">Student Profile</Typography>
       </Box>
-    </Container>
+      {loading ? (
+        <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Paper sx={{ p: 3 }}>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="Nombre"
+              name="nombre_name"
+              value={student?.nombre_name || ''}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Apellido"
+              name="apellido"
+              value={student?.apellido || ''}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Documento"
+              name="numero_documento"
+              value={student?.numero_documento || ''}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
+            <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
+              Save
+            </Button>
+          </form>
+        </Paper>
+      )}
+    </Box>
   );
 };
 
