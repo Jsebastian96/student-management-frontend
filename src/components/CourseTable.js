@@ -12,6 +12,13 @@ import {
   CircularProgress,
   Typography,
   Box,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  List,
+  ListItem,
+  ListItemText
 } from '@mui/material';
 
 const CourseTable = () => {
@@ -20,6 +27,8 @@ const CourseTable = () => {
   const [pageNumber, setPageNumber] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [totalCourses, setTotalCourses] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [selectedStudentIds, setSelectedStudentIds] = useState([]);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -49,6 +58,15 @@ const CourseTable = () => {
     setPageNumber(0);
   };
 
+  const handleOpenDialog = (studentIds) => {
+    setSelectedStudentIds(studentIds);
+    setOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpen(false);
+  };
+
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <Typography variant="h4" gutterBottom align="center" sx={{ bgcolor: '#45BF55', padding: 2, color: '#ffffff' }}>
@@ -67,14 +85,20 @@ const CourseTable = () => {
                   <TableCell>Course Name</TableCell>
                   <TableCell>Remaining Seats</TableCell>
                   <TableCell>Enrollments</TableCell>
+                  <TableCell>Student IDs</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {courses.map((course) => (
                   <TableRow key={course._id} sx={{ borderBottom: '2px solid #2E9CCA' }}>
                     <TableCell>{course.nombre}</TableCell>
-                    <TableCell>{course.cupos_materia}</TableCell>
-                    <TableCell>{course.enrollments ? course.enrollments.length : 0}</TableCell>
+                    <TableCell>{20 - course.enrollmentsCount}</TableCell>
+                    <TableCell>{course.enrollmentsCount}</TableCell>
+                    <TableCell>
+                      <Button variant="contained" color="primary" onClick={() => handleOpenDialog(course.studentIds)}>
+                        View Students
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -92,6 +116,18 @@ const CourseTable = () => {
           />
         </>
       )}
+      <Dialog open={open} onClose={handleCloseDialog}>
+        <DialogTitle>Student IDs</DialogTitle>
+        <DialogContent>
+          <List>
+            {selectedStudentIds.map((id) => (
+              <ListItem key={id}>
+                <ListItemText primary={id} />
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+      </Dialog>
     </Paper>
   );
 };
