@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Container, CssBaseline, AppBar, Toolbar, Typography, Box, Button } from '@mui/material';
+import { Container, CssBaseline, AppBar, Toolbar, Typography, Button } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
 import AuthForm from './components/AuthForm';
 import Dashboard from './components/Dashboard';
 import StudentProfile from './components/StudentProfile';
@@ -24,6 +24,7 @@ const theme = createTheme({
 
 const App = () => {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
+  const navigate = useNavigate();
 
   const handleAuth = (userData) => {
     localStorage.setItem('user', JSON.stringify(userData));
@@ -33,6 +34,7 @@ const App = () => {
   const handleLogout = () => {
     localStorage.removeItem('user');
     setUser(null);
+    navigate('/login');
   };
 
   useEffect(() => {
@@ -45,34 +47,39 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
-        {!user ? (
-          <Container sx={{ mt: 8 }}>
-            <AuthForm onAuth={handleAuth} />
+      {!user ? (
+        <Container sx={{ mt: 8 }}>
+          <AuthForm onAuth={handleAuth} />
+        </Container>
+      ) : (
+        <>
+          <AppBar position="static" color="primary">
+            <Toolbar>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                Student Management System
+              </Typography>
+              <Button color="inherit" onClick={handleLogout}>Logout</Button>
+            </Toolbar>
+          </AppBar>
+          <Container sx={{ mt: 4 }}>
+            <Routes>
+              <Route path="/" element={<Navigate to={user.role === 'admin' ? '/dashboard' : '/profile'} />} />
+              <Route path="/dashboard" element={<Dashboard onLogout={handleLogout} />} />
+              <Route path="/profile" element={<StudentProfile user={user} onLogout={handleLogout} />} />
+              <Route path="/" element={<AuthForm onAuth={handleAuth} />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
           </Container>
-        ) : (
-          <>
-            <AppBar position="static" color="primary">
-              <Toolbar>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                  Student Management System
-                </Typography>
-                <Button color="inherit" onClick={handleLogout}>Logout</Button>
-              </Toolbar>
-            </AppBar>
-            <Container sx={{ mt: 4 }}>
-              <Routes>
-                <Route path="/" element={<Navigate to={user.role === 'admin' ? '/dashboard' : '/profile'} />} />
-                <Route path="/dashboard" element={<Dashboard onLogout={handleLogout} />} />
-                <Route path="/profile" element={<StudentProfile user={user} onLogout={handleLogout} />} />
-                <Route path="*" element={<Navigate to="/" />} />
-              </Routes>
-            </Container>
-          </>
-        )}
-      </Router>
+        </>
+      )}
     </ThemeProvider>
   );
 };
 
-export default App;
+const AppWrapper = () => (
+  <Router>
+    <App />
+  </Router>
+);
+
+export default AppWrapper;
