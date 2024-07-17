@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'r
 import AuthForm from './components/AuthForm';
 import Dashboard from './components/Dashboard';
 import StudentProfile from './components/StudentProfile';
+import FaceRecognition from './components/FaceRecognition'; 
 
 const theme = createTheme({
   palette: {
@@ -66,6 +67,7 @@ const App = () => {
               <Route path="/" element={<Navigate to={user.role === 'admin' ? '/dashboard' : '/profile'} />} />
               <Route path="/dashboard" element={<Dashboard onLogout={handleLogout} />} />
               <Route path="/profile" element={<StudentProfile user={user} onLogout={handleLogout} />} />
+              <Route path="/face-recognition" element={<FaceRecognition />} /> {/* Añade esta línea */}
               <Route path="/" element={<AuthForm onAuth={handleAuth} />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
