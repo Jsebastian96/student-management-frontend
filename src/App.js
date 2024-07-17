@@ -1,8 +1,10 @@
-import React from 'react';
-import { Container, CssBaseline, AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
+import React, { useState } from 'react';
+import { Container, CssBaseline, AppBar, Toolbar, Typography, Box } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import StudentTable from './components/StudentTable';
-import CourseTable from './components/CourseTable';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import AuthForm from './components/AuthForm';
+import Dashboard from './components/Dashboard';
+import StudentProfile from './components/StudentProfile';
 
 const theme = createTheme({
   palette: {
@@ -21,23 +23,39 @@ const theme = createTheme({
 });
 
 const App = () => {
+  const [user, setUser] = useState(null);
+
+  const handleAuth = (userData) => {
+    setUser(userData);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppBar position="static" color="primary">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Student Management System
-          </Typography>
-          <Button color="secondary" variant="contained">Crear Nuevo</Button>
-        </Toolbar>
-      </AppBar>
-      <Container sx={{ mt: 4 }}>
-        <StudentTable />
-        <Box mt={4}>
-          <CourseTable />
-        </Box>
-      </Container>
+      <Router>
+        {!user ? (
+          <Container sx={{ mt: 8 }}>
+            <AuthForm onAuth={handleAuth} />
+          </Container>
+        ) : (
+          <>
+            <AppBar position="static" color="primary">
+              <Toolbar>
+                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                  Student Management System
+                </Typography>
+              </Toolbar>
+            </AppBar>
+            <Container sx={{ mt: 4 }}>
+              <Routes>
+                <Route path="/" element={<Navigate to={user.role === 'admin' ? '/dashboard' : '/profile'} />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile" element={<StudentProfile />} />
+              </Routes>
+            </Container>
+          </>
+        )}
+      </Router>
     </ThemeProvider>
   );
 };

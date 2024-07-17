@@ -14,7 +14,7 @@ const StudentForm = ({ studentId, onSubmit }) => {
 
   useEffect(() => {
     const fetchPrograms = async () => {
-      const response = await axios.get('http://localhost:3000/api/programs');
+      const response = await axios.get('http://localhost:3000/api/programas');
       setPrograms(response.data);
     };
     fetchPrograms();

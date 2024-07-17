@@ -1,0 +1,74 @@
+
+.auth-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+}
+body {
+  background: url('https://fondosmil.com/fondo/70409.jpg') no-repeat center center fixed; 
+  background-size: cover;
+}
+.auth-form-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 40px;
+  background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco con transparencia */
+  border-radius: 10px;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.login-title {
+  margin-bottom: 30px;
+  color: #335C67;
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.login-form {
+  width: 100%;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+.input-group input {
+  border: none;
+  outline: none;
+  flex: 1;
+}
+
+.icon {
+  margin-right: 10px;
+  color: #9EDE73;
+}
+
+.login-button {
+  background-color: #9EDE73;
+  color: #335C67;
+  font-weight: bold;
+  padding: 10px 0;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+.login-button:hover {
+  background-color: #83D9C8;
+}
+

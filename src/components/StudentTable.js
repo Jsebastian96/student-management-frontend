@@ -12,9 +12,16 @@ import {
   CircularProgress,
   Typography,
   Box,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
   useMediaQuery
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import PhotoIcon from '@mui/icons-material/Photo';
 
 const StudentTable = () => {
   const [students, setStudents] = useState([]);
@@ -22,6 +29,7 @@ const StudentTable = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalStudents, setTotalStudents] = useState(0);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -33,7 +41,7 @@ const StudentTable = () => {
     setLoading(true);
     try {
       const response = await axios.get(`http://localhost:3000/api/estudiantes`, {
-        params: { PageNumber: page + 1, PageSize: rowsPerPage }
+        params: { page: page + 1, limit: rowsPerPage }
       });
       const { students = [], totalStudents = 0 } = response.data;
       setStudents(students);
@@ -52,6 +60,14 @@ const StudentTable = () => {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
+  };
+
+  const handleViewPhoto = (photoBase64) => {
+    setSelectedPhoto(photoBase64);
+  };
+
+  const handleClosePhotoDialog = () => {
+    setSelectedPhoto(null);
   };
 
   return (
@@ -73,6 +89,7 @@ const StudentTable = () => {
                   <TableCell>Nombre</TableCell>
                   <TableCell>Apellido</TableCell>
                   <TableCell>Documento</TableCell>
+                  <TableCell>Foto</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -82,6 +99,15 @@ const StudentTable = () => {
                     <TableCell>{student.nombre_name}</TableCell>
                     <TableCell>{student.apellido}</TableCell>
                     <TableCell>{student.numero_documento}</TableCell>
+                    <TableCell>
+                      {student.photo_estudiante ? (
+                        <IconButton onClick={() => handleViewPhoto(student.photo_estudiante)}>
+                          <PhotoIcon />
+                        </IconButton>
+                      ) : (
+                        'Sin Foto'
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -99,6 +125,15 @@ const StudentTable = () => {
           />
         </>
       )}
+      <Dialog open={!!selectedPhoto} onClose={handleClosePhotoDialog}>
+        <DialogTitle>Foto del Estudiante</DialogTitle>
+        <DialogContent>
+          {selectedPhoto && <img src={`data:image/jpeg;base64,${selectedPhoto}`} alt="Foto del Estudiante" style={{ maxWidth: '100%' }} />}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClosePhotoDialog} color="primary">Cerrar</Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   );
 };
