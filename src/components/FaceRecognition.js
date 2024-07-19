@@ -100,7 +100,6 @@ const FaceRecognition = () => {
               <Typography sx={{ mt: 2 }}>
                 Course: {recognizedStudent?.course}
               </Typography>
-              {/* Añade más campos según sea necesario */}
             </>
           )}
         </Box>
