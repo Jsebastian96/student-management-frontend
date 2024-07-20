@@ -1,12 +1,30 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Container, Typography, Paper, CircularProgress, Box, IconButton, Tooltip, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Select, MenuItem, FormControl, InputLabel, Alert } from '@mui/material';
-import FaceIcon from '@mui/icons-material/Face';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import StudentTable from './StudentTable';
-import CourseTable from './CourseTable';
-import './css/Dash.css';
+import React, { useEffect, useState, useRef } from "react";
+import {
+  Typography,
+  Paper,
+  CircularProgress,
+  Box,
+  IconButton,
+  Tooltip,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Alert,
+} from "@mui/material";
+import FaceIcon from "@mui/icons-material/Face";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import StudentTable from "./StudentTable";
+import CourseTable from "./CourseTable";
+import "./css/Dash.css";
 
 const Dashboard = ({ onLogout }) => {
   const [students, setStudents] = useState([]);
@@ -15,15 +33,15 @@ const Dashboard = ({ onLogout }) => {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [newStudent, setNewStudent] = useState({
-    nombre_name: '',
-    apellido: '',
-    numero_documento: '',
-    programa_id: '',
-    photo_estudiante: ''
+    nombre_name: "",
+    apellido: "",
+    numero_documento: "",
+    programa_id: "",
+    photo_estudiante: "",
   });
   const [errors, setErrors] = useState([]);
   const [cameraOpen, setCameraOpen] = useState(false);
-  const [photoPreview, setPhotoPreview] = useState('');
+  const [photoPreview, setPhotoPreview] = useState("");
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -33,22 +51,28 @@ const Dashboard = ({ onLogout }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const studentsResponse = await axios.get('/api/estudiantes');
-        const coursesResponse = await axios.get('/api/materias');
-        const programsResponse = await axios.get('/api/programas');
-        
-        console.log('Students Response:', studentsResponse.data);
-        console.log('Courses Response:', coursesResponse.data);
-        console.log('Programs Response:', programsResponse.data); 
-        
+        const studentsResponse = await axios.get(
+          "http://localhost:3000/api/estudiantes"
+        );
+        const coursesResponse = await axios.get(
+          "http://localhost:3000/api/materias"
+        );
+        const programsResponse = await axios.get(
+          "http://localhost:3000/api/programas"
+        );
+
+        console.log("Students Response:", studentsResponse.data);
+        console.log("Courses Response:", coursesResponse.data);
+        console.log("Programs Response:", programsResponse.data);
+
         setStudents(studentsResponse.data.students);
         setCourses(coursesResponse.data.courses);
         setPrograms(programsResponse.data);
-        
+
         // Log adicional para verificar el estado
-        console.log('Programs State after setPrograms:', programsResponse.data);
+        console.log("Programs State after setPrograms:", programsResponse.data);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
@@ -58,7 +82,7 @@ const Dashboard = ({ onLogout }) => {
   }, []);
 
   const handleFaceRecognitionClick = () => {
-    navigate('/face-recognition');
+    navigate("/face-recognition");
   };
 
   const handleClickOpen = () => {
@@ -73,19 +97,25 @@ const Dashboard = ({ onLogout }) => {
   const handleChange = (e) => {
     setNewStudent({
       ...newStudent,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const validateFields = () => {
-    const { nombre_name, apellido, numero_documento, programa_id, photo_estudiante } = newStudent;
+    const {
+      nombre_name,
+      apellido,
+      numero_documento,
+      programa_id,
+      photo_estudiante,
+    } = newStudent;
     const errors = [];
 
-    if (!nombre_name) errors.push('Nombre es requerido');
-    if (!apellido) errors.push('Apellido es requerido');
-    if (!numero_documento) errors.push('Número de Documento es requerido');
-    if (!programa_id) errors.push('Programa es requerido');
-    if (!photo_estudiante) errors.push('Foto es requerida');
+    if (!nombre_name) errors.push("Nombre es requerido");
+    if (!apellido) errors.push("Apellido es requerido");
+    if (!numero_documento) errors.push("Número de Documento es requerido");
+    if (!programa_id) errors.push("Programa es requerido");
+    if (!photo_estudiante) errors.push("Foto es requerida");
 
     setErrors(errors);
 
@@ -97,25 +127,28 @@ const Dashboard = ({ onLogout }) => {
 
     try {
       const formData = new FormData();
-      formData.append('nombre_name', newStudent.nombre_name);
-      formData.append('apellido', newStudent.apellido);
-      formData.append('numero_documento', newStudent.numero_documento);
-      formData.append('programa_id', newStudent.programa_id);
+      formData.append("nombre_name", newStudent.nombre_name);
+      formData.append("apellido", newStudent.apellido);
+      formData.append("numero_documento", newStudent.numero_documento);
+      formData.append("programa_id", newStudent.programa_id);
       if (newStudent.photo_estudiante) {
         const response = await fetch(newStudent.photo_estudiante);
         const blob = await response.blob();
-        formData.append('photo', new File([blob], `${newStudent.numero_documento}.png`));
+        formData.append(
+          "photo",
+          new File([blob], `${newStudent.numero_documento}.png`)
+        );
       }
 
-      const response = await axios.post('/api/estudiantes', formData, {
+      const response = await axios.post("/api/estudiantes", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
       setStudents([...students, response.data]);
       setOpen(false);
     } catch (error) {
-      console.error('Error adding student:', error);
+      console.error("Error adding student:", error);
     }
   };
 
@@ -127,7 +160,7 @@ const Dashboard = ({ onLogout }) => {
         videoRef.current.srcObject = stream;
       })
       .catch((error) => {
-        console.error('Error accessing camera:', error);
+        console.error("Error accessing camera:", error);
       });
   };
 
@@ -144,9 +177,15 @@ const Dashboard = ({ onLogout }) => {
   };
 
   const capturePhoto = () => {
-    const context = canvasRef.current.getContext('2d');
-    context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
-    const photo = canvasRef.current.toDataURL('image/png');
+    const context = canvasRef.current.getContext("2d");
+    context.drawImage(
+      videoRef.current,
+      0,
+      0,
+      canvasRef.current.width,
+      canvasRef.current.height
+    );
+    const photo = canvasRef.current.toDataURL("image/png");
     setNewStudent({ ...newStudent, photo_estudiante: photo });
     setPhotoPreview(photo);
     stopCamera();
@@ -154,10 +193,20 @@ const Dashboard = ({ onLogout }) => {
 
   return (
     <div className="Dashbody">
-      <Box display="flex" justifyContent="space-between" alignItems="center" p={2} mb={2}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        p={2}
+        mb={2}
+      >
         <Box>
           <Tooltip title="Face Recognition Module">
-            <IconButton onClick={handleFaceRecognitionClick} color="primary" className="large-icon">
+            <IconButton
+              onClick={handleFaceRecognitionClick}
+              color="primary"
+              className="large-icon"
+            >
               <FaceIcon />
             </IconButton>
           </Tooltip>
@@ -167,7 +216,12 @@ const Dashboard = ({ onLogout }) => {
         </Button>
       </Box>
       {loading ? (
-        <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100%"
+        >
           <CircularProgress />
         </Box>
       ) : (
@@ -177,7 +231,12 @@ const Dashboard = ({ onLogout }) => {
           </Paper>
 
           <Paper className="table-container">
-            <Typography variant="h4" gutterBottom align="center" className="table-title"></Typography>
+            <Typography
+              variant="h4"
+              gutterBottom
+              align="center"
+              className="table-title"
+            ></Typography>
             <CourseTable courses={courses} />
           </Paper>
         </>
@@ -226,6 +285,7 @@ const Dashboard = ({ onLogout }) => {
           />
           <FormControl fullWidth margin="dense">
             <InputLabel id="programa_id-label">Programa</InputLabel>
+
             <Select
               labelId="programa_id-label"
               name="programa_id"
@@ -243,7 +303,7 @@ const Dashboard = ({ onLogout }) => {
               )}
             </Select>
           </FormControl>
-          <div style={{ textAlign: 'center', marginTop: '10px' }}>
+          <div style={{ textAlign: "center", marginTop: "10px" }}>
             {!cameraOpen ? (
               <Button variant="contained" color="primary" onClick={startCamera}>
                 Start Camera
@@ -251,15 +311,24 @@ const Dashboard = ({ onLogout }) => {
             ) : (
               <div>
                 <video ref={videoRef} width="320" height="240" autoPlay />
-                <canvas ref={canvasRef} width="320" height="240" style={{ display: 'none' }} />
-                <Button variant="contained" color="primary" onClick={capturePhoto}>
+                <canvas
+                  ref={canvasRef}
+                  width="320"
+                  height="240"
+                  style={{ display: "none" }}
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={capturePhoto}
+                >
                   Capture Photo
                 </Button>
               </div>
             )}
           </div>
           {photoPreview && (
-            <div style={{ textAlign: 'center', marginTop: '10px' }}>
+            <div style={{ textAlign: "center", marginTop: "10px" }}>
               <img src={photoPreview} alt="Student" width="320" height="240" />
             </div>
           )}

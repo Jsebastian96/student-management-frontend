@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Paper, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel, Snackbar, Alert, Button, TextField } from '@mui/material';
 import axios from 'axios';
+import { Box, Button, Typography, CircularProgress, Paper, Container, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, Snackbar, Alert } from '@mui/material';
 
-const StudentProfile = ({ user, onLogout }) => {
+const StudentProfile = ({ user }) => {
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [openEnroll, setOpenEnroll] = useState(false);
@@ -10,13 +10,14 @@ const StudentProfile = ({ user, onLogout }) => {
   const [courses, setCourses] = useState([]);
   const [enrollment, setEnrollment] = useState({ course: '', student: user?.estudiante_id || '' });
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [newPhoto, setNewPhoto] = useState(null);
 
   useEffect(() => {
     if (user && user.estudiante_id) {
       const fetchStudent = async () => {
         setLoading(true);
         try {
-          const response = await axios.get(`/api/estudiantes/${user.estudiante_id}`);
+          const response = await axios.get(`http://localhost:3000/api/estudiantes/${user.estudiante_id}`);
           console.log('Student Data:', response.data);
           setStudent(response.data);
           setLoading(false);
@@ -33,7 +34,7 @@ const StudentProfile = ({ user, onLogout }) => {
   const handleOpenEnroll = async () => {
     setOpenEnroll(true);
     try {
-      const response = await axios.get('/api/materias');
+      const response = await axios.get('http://localhost:3000/api/materias');
       setCourses(response.data.courses);
     } catch (error) {
       console.error('Error fetching courses:', error);
@@ -55,7 +56,7 @@ const StudentProfile = ({ user, onLogout }) => {
   const handleEnrollSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/api/inscripciones', enrollment);
+      await axios.post('http://localhost:3000/api/inscripciones', enrollment);
       setSnackbar({ open: true, message: 'Enrolled successfully', severity: 'success' });
       setOpenEnroll(false);
     } catch (error) {
@@ -84,10 +85,23 @@ const StudentProfile = ({ user, onLogout }) => {
     }));
   };
 
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setNewPhoto(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+    const updatedStudent = { ...student };
+    if (newPhoto) {
+      updatedStudent.photo_estudiante = newPhoto.split(',')[1]; // Remove the base64 prefix
+    }
     try {
-      await axios.put(`/api/estudiantes/${user.estudiante_id}`, student);
+      await axios.put(`http://localhost:3000/api/estudiantes/${user.estudiante_id}`, updatedStudent);
       setSnackbar({ open: true, message: 'Profile updated successfully', severity: 'success' });
       setOpenEdit(false);
     } catch (error) {
@@ -101,22 +115,35 @@ const StudentProfile = ({ user, onLogout }) => {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Container maxWidth="sm" sx={{ bgcolor: '#fff', padding: 4, borderRadius: 2, mt: 4 }}>
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" height="100%">
           <CircularProgress />
         </Box>
       ) : (
         <Paper sx={{ p: 3 }}>
-          <Typography variant="h5" gutterBottom>Perfil Estudiante</Typography>
-          <Typography variant="body1"><strong>Nombre:</strong> {student?.nombre_name}</Typography>
-          <Typography variant="body1"><strong>Apellido:</strong> {student?.apellido}</Typography>
-          <Typography variant="body1"><strong>Documento:</strong> {student?.numero_documento}</Typography>
+          <Typography variant="h4" gutterBottom align="center">Perfil Estudiante</Typography>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Box>
+              <Typography variant="body1"><strong>Nombre:</strong> {student?.nombre_name}</Typography>
+              <Typography variant="body1"><strong>Apellido:</strong> {student?.apellido}</Typography>
+              <Typography variant="body1"><strong>Documento:</strong> {student?.numero_documento}</Typography>
+            </Box>
+            {student?.photo_estudiante && (
+              <Box ml={2}>
+                <img
+                  src={`data:image/jpeg;base64,${student.photo_estudiante}`}
+                  alt="Student"
+                  style={{ width: '100px', height: '100px', borderRadius: '50%' }}
+                />
+              </Box>
+            )}
+          </Box>
           <Box display="flex" justifyContent="space-between" mt={2}>
-            <Button variant="contained" color="primary" onClick={handleOpenEnroll}>
+            <Button variant="contained" color="primary" onClick={handleOpenEnroll} sx={{ bgcolor: '#335C67', '&:hover': { bgcolor: '#1e3a47' } }}>
               Inscribir Curso
             </Button>
-            <Button variant="contained" color="secondary" onClick={handleOpenEdit}>
+            <Button variant="contained" color="secondary" onClick={handleOpenEdit} sx={{ bgcolor: '#9EDE73', '&:hover': { bgcolor: '#83c35e' } }}>
               Editar Perfil
             </Button>
           </Box>
@@ -148,7 +175,7 @@ const StudentProfile = ({ user, onLogout }) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseEnroll} color="primary">
-            Cancel
+            Cancelar
           </Button>
         </DialogActions>
       </Dialog>
@@ -180,14 +207,29 @@ const StudentProfile = ({ user, onLogout }) => {
               fullWidth
               margin="normal"
             />
+            <input
+              accept="image/*"
+              type="file"
+              onChange={handlePhotoChange}
+              style={{ marginTop: '16px' }}
+            />
+            {newPhoto && (
+              <Box mt={2}>
+                <img
+                  src={newPhoto}
+                  alt="New"
+                  style={{ width: '100px', height: '100px', borderRadius: '50%' }}
+                />
+              </Box>
+            )}
             <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-              Save
+              Guardar
             </Button>
           </form>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseEdit} color="primary">
-            Cancel
+            Cancelar
           </Button>
         </DialogActions>
       </Dialog>
@@ -196,7 +238,7 @@ const StudentProfile = ({ user, onLogout }) => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Box>
+    </Container>
   );
 };
 

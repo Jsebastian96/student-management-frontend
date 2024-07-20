@@ -1,27 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { TextField, Button, Select, MenuItem, FormControl, InputLabel, Box } from '@mui/material';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import {
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Box,
+} from "@mui/material";
 
 const StudentForm = ({ studentId, onSubmit }) => {
   const [student, setStudent] = useState({
-    nombre_name: '',
-    apellido: '',
-    numero_documento: '',
-    programa_id: '',
-    photo_estudiante: null
+    nombre_name: "",
+    apellido: "",
+    numero_documento: "",
+    programa_id: "",
+    photo_estudiante: null,
   });
   const [programs, setPrograms] = useState([]);
 
   useEffect(() => {
     const fetchPrograms = async () => {
-      const response = await axios.get('http://localhost:3000/api/programas');
+      const response = await axios.get("http://localhost:3000/api/programas");
       setPrograms(response.data);
     };
     fetchPrograms();
 
     if (studentId) {
       const fetchStudent = async () => {
-        const response = await axios.get(`http://localhost:3000/api/estudiantes/${studentId}`);
+        const response = await axios.get(
+          `http://localhost:3000/api/estudiantes/${studentId}`
+        );
         setStudent(response.data);
       };
       fetchStudent();
@@ -34,7 +44,10 @@ const StudentForm = ({ studentId, onSubmit }) => {
   };
 
   const handleFileChange = (e) => {
-    setStudent((prevStudent) => ({ ...prevStudent, photo_estudiante: e.target.files[0] }));
+    setStudent((prevStudent) => ({
+      ...prevStudent,
+      photo_estudiante: e.target.files[0],
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -45,16 +58,23 @@ const StudentForm = ({ studentId, onSubmit }) => {
     }
 
     if (studentId) {
-      await axios.put(`http://localhost:3000/api/estudiantes/${studentId}`, formData);
+      await axios.put(
+        `http://localhost:3000/api/estudiantes/${studentId}`,
+        formData
+      );
     } else {
-      await axios.post('http://localhost:3000/api/estudiantes', formData);
+      await axios.post("http://localhost:3000/api/estudiantes", formData);
     }
 
     if (onSubmit) onSubmit();
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+    >
       <TextField
         label="Nombre"
         name="nombre_name"
@@ -94,7 +114,9 @@ const StudentForm = ({ studentId, onSubmit }) => {
         Subir Fotografía
         <input type="file" hidden onChange={handleFileChange} />
       </Button>
-      <Button type="submit" variant="contained" color="primary">Guardar</Button>
+      <Button type="submit" variant="contained" color="primary">
+        Guardar
+      </Button>
     </Box>
   );
 };

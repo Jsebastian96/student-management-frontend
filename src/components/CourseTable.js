@@ -21,6 +21,7 @@ import {
   ListItemText
 } from '@mui/material';
 
+
 const CourseTable = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +29,7 @@ const CourseTable = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalCourses, setTotalCourses] = useState(0);
   const [open, setOpen] = useState(false);
-  const [selectedStudentIds, setSelectedStudentIds] = useState([]);
+  const [selectedStudents, setSelectedStudents] = useState([]);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -58,8 +59,9 @@ const CourseTable = () => {
     setPageNumber(0);
   };
 
-  const handleOpenDialog = (studentIds) => {
-    setSelectedStudentIds(studentIds);
+  const handleOpenDialog = (students) => {
+    console.log(students);
+    setSelectedStudents(students);
     setOpen(true);
   };
 
@@ -95,7 +97,7 @@ const CourseTable = () => {
                     <TableCell>{20 - course.enrollmentsCount}</TableCell>
                     <TableCell>{course.enrollmentsCount}</TableCell>
                     <TableCell>
-                      <Button variant="contained" color="primary" onClick={() => handleOpenDialog(course.studentIds)}>
+                      <Button variant="contained" color="primary" onClick={() => handleOpenDialog(course.enrollmentsInfo)}>
                         View Students
                       </Button>
                     </TableCell>
@@ -116,13 +118,13 @@ const CourseTable = () => {
           />
         </>
       )}
-      <Dialog open={open} onClose={handleCloseDialog}>
-        <DialogTitle>Student IDs</DialogTitle>
+     <Dialog open={open} onClose={handleCloseDialog}>
+        <DialogTitle>Lista Estudiantes</DialogTitle>
         <DialogContent>
           <List>
-            {selectedStudentIds.map((id) => (
-              <ListItem key={id}>
-                <ListItemText primary={id} />
+            {selectedStudents.map((student, index) => (
+              <ListItem key={index}>
+                <ListItemText primary={`${index + 1}. Nombre: ${student.nombre} - Apellido: ${student.apellido}`} />
               </ListItem>
             ))}
           </List>
