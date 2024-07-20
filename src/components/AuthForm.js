@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { TextField, Button, Box, Typography, Paper, Checkbox, FormControlLabel } from '@mui/material';
+import { TextField, Button, Box, Typography, Paper, Checkbox, FormControlLabel, Snackbar, Alert } from '@mui/material';
 import { Person as PersonIcon, Lock as LockIcon } from '@mui/icons-material';
 import './css/AuthForm.css';
 
 const AuthForm = ({ onAuth }) => {
   const [hash_usuario, setHashUsuario] = useState('');
   const [hash_password, setHashPassword] = useState('');
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,8 +15,12 @@ const AuthForm = ({ onAuth }) => {
       const response = await axios.post('http://localhost:3000/api/auth/login', { hash_usuario, hash_password });
       onAuth(response.data.user);
     } catch (error) {
-      alert('Credenciales incorrectas');
+      setSnackbar({ open: true, message: 'Credenciales incorrectas', severity: 'error' });
     }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ open: false, message: '', severity: 'success' });
   };
 
   return (
@@ -51,6 +56,11 @@ const AuthForm = ({ onAuth }) => {
           <Button type="submit" variant="contained" color="primary" fullWidth>Login</Button>
         </Box>
       </Paper>
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

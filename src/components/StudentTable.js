@@ -57,9 +57,14 @@ const StudentTable = () => {
     setPage(0);
   };
 
-  const handleOpenPhoto = (photo) => {
-    setSelectedPhoto(photo);
-    setOpen(true);
+  const handleOpenPhoto = async (studentId) => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/estudiantes/${studentId}`);
+      setSelectedPhoto(response.data.photo_estudiante);
+      setOpen(true);
+    } catch (error) {
+      console.error('Error fetching student photo:', error);
+    }
   };
 
   const handleClosePhoto = () => {
@@ -81,7 +86,6 @@ const StudentTable = () => {
             <Table stickyHeader aria-label="sticky table">
               <TableHead sx={{ bgcolor: '#83D9C8' }}>
                 <TableRow>
-                  <TableCell>ID</TableCell>
                   <TableCell>Nombre</TableCell>
                   <TableCell>Apellido</TableCell>
                   <TableCell>Documento</TableCell>
@@ -91,13 +95,12 @@ const StudentTable = () => {
               <TableBody>
                 {students.map((student) => (
                   <TableRow key={student._id} sx={{ borderBottom: '2px solid #2E9CCA' }}>
-                    <TableCell>{student._id}</TableCell>
                     <TableCell>{student.nombre_name}</TableCell>
                     <TableCell>{student.apellido}</TableCell>
                     <TableCell>{student.numero_documento}</TableCell>
                     <TableCell>
                       {student.photo_estudiante ? (
-                        <IconButton onClick={() => handleOpenPhoto(student.photo_estudiante)}>
+                        <IconButton onClick={() => handleOpenPhoto(student._id)}>
                           <PhotoIcon />
                         </IconButton>
                       ) : (
@@ -124,7 +127,11 @@ const StudentTable = () => {
       <Dialog open={open} onClose={handleClosePhoto}>
         <DialogTitle>Student Photo</DialogTitle>
         <DialogContent>
-          <img src={`data:image/jpeg;base64,${selectedPhoto}`} alt="Student" style={{ width: '100%' }} />
+          {selectedPhoto ? (
+            <img src={`data:image/jpeg;base64,${selectedPhoto}`} alt="Student" style={{ width: '100%' }} />
+          ) : (
+            'No Photo Available'
+          )}
         </DialogContent>
       </Dialog>
     </Paper>
