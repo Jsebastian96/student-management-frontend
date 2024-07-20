@@ -2,18 +2,22 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { TextField, Button, Box, Typography, Paper, Checkbox, FormControlLabel, Snackbar, Alert } from '@mui/material';
 import { Person as PersonIcon, Lock as LockIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import './css/AuthForm.css';
 
 const AuthForm = ({ onAuth }) => {
   const [hash_usuario, setHashUsuario] = useState('');
   const [hash_password, setHashPassword] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:3000/api/auth/login', { hash_usuario, hash_password });
-      onAuth(response.data.user);
+      localStorage.setItem('token', response.data.token); // Guardar el token en localStorage
+      onAuth(response.data.token); // Pasar el token a la función onAuth
+      navigate('/dashboard'); // Redirigir al usuario después de iniciar sesión
     } catch (error) {
       setSnackbar({ open: true, message: 'Credenciales incorrectas', severity: 'error' });
     }

@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Container, CssBaseline, AppBar, Toolbar, Typography, Button } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 import AuthForm from './components/AuthForm';
 import Dashboard from './components/Dashboard';
 import StudentProfile from './components/StudentProfile';
-import FaceRecognition from './components/FaceRecognition'; 
+import FaceRecognition from './components/FaceRecognition';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const theme = createTheme({
   palette: {
@@ -24,56 +26,50 @@ const theme = createTheme({
 });
 
 const App = () => {
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  const handleAuth = (userData) => {
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
+  const handleAuth = (token) => {
+    const decoded = jwtDecode(token);
+    localStorage.setItem('token', token);
+    setUser(decoded);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
+  const logout = () => {
+    localStorage.removeItem('token');
     setUser(null);
     navigate('/login');
   };
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
-    if (storedUser) {
-      setUser(storedUser);
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded = jwtDecode(token);
+      setUser(decoded);
     }
   }, []);
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {!user ? (
-        <Container sx={{ mt: 8 }}>
-          <AuthForm onAuth={handleAuth} />
-        </Container>
-      ) : (
-        <>
-          <AppBar position="static" color="primary">
-            <Toolbar>
-              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                Student Management System
-              </Typography>
-              <Button color="inherit" onClick={handleLogout}>Logout</Button>
-            </Toolbar>
-          </AppBar>
-          <Container sx={{ mt: 4 }}>
-            <Routes>
-              <Route path="/" element={<Navigate to={user.role === 'admin' ? '/dashboard' : '/profile'} />} />
-              <Route path="/dashboard" element={<Dashboard onLogout={handleLogout} />} />
-              <Route path="/profile" element={<StudentProfile user={user} onLogout={handleLogout} />} />
-              <Route path="/face-recognition" element={<FaceRecognition />} /> {/* Añade esta línea */}
-              <Route path="/" element={<AuthForm onAuth={handleAuth} />} />
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </Container>
-        </>
-      )}
+      <AppBar position="static" color="primary">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Student Management System
+          </Typography>
+          {user && <Button color="inherit" onClick={logout}>Logout</Button>}
+        </Toolbar>
+      </AppBar>
+      <Container sx={{ mt: 4 }}>
+        <Routes>
+          <Route path="/" element={<Navigate to={user ? (user.role === 'admin' ? '/dashboard' : '/profile') : '/login'} />} />
+          <Route path="/login" element={<AuthForm onAuth={handleAuth} />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><StudentProfile /></ProtectedRoute>} />
+          <Route path="/face-recognition" element={<ProtectedRoute><FaceRecognition /></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </Container>
     </ThemeProvider>
   );
 };
