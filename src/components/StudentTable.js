@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import {
   Table,
@@ -27,12 +27,9 @@ const StudentTable = () => {
   const [totalStudents, setTotalStudents] = useState(0);
   const [open, setOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState('');
+  const [photoLoading, setPhotoLoading] = useState(false);
 
-  useEffect(() => {
-    fetchStudents();
-  }, [page, rowsPerPage]);
-
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axios.get('http://localhost:3000/api/estudiantes', {
@@ -46,6 +43,23 @@ const StudentTable = () => {
       console.error('Error fetching students:', error);
       setLoading(false);
     }
+  }, [page, rowsPerPage]);
+
+  useEffect(() => {
+    fetchStudents();
+  }, [fetchStudents]);
+
+  const fetchStudentPhoto = async (studentId) => {
+    setPhotoLoading(true);
+    try {
+      const response = await axios.get(`http://localhost:3000/api/estudiantes/${studentId}/photo`);
+      setSelectedPhoto(response.data.photo_estudiante);
+      setOpen(true);
+      setPhotoLoading(false);
+    } catch (error) {
+      console.error('Error fetching student photo:', error);
+      setPhotoLoading(false);
+    }
   };
 
   const handleChangePage = (event, newPage) => {
@@ -57,14 +71,8 @@ const StudentTable = () => {
     setPage(0);
   };
 
-  const handleOpenPhoto = async (studentId) => {
-    try {
-      const response = await axios.get(`http://localhost:3000/api/estudiantes/${studentId}`);
-      setSelectedPhoto(response.data.photo_estudiante);
-      setOpen(true);
-    } catch (error) {
-      console.error('Error fetching student photo:', error);
-    }
+  const handleOpenPhoto = (studentId) => {
+    fetchStudentPhoto(studentId);
   };
 
   const handleClosePhoto = () => {
@@ -99,13 +107,9 @@ const StudentTable = () => {
                     <TableCell>{student.apellido}</TableCell>
                     <TableCell>{student.numero_documento}</TableCell>
                     <TableCell>
-                      {student.photo_estudiante ? (
-                        <IconButton onClick={() => handleOpenPhoto(student._id)}>
-                          <PhotoIcon />
-                        </IconButton>
-                      ) : (
-                        'No Photo'
-                      )}
+                      <IconButton onClick={() => handleOpenPhoto(student._id)} disabled={photoLoading}>
+                        <PhotoIcon />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -127,7 +131,11 @@ const StudentTable = () => {
       <Dialog open={open} onClose={handleClosePhoto}>
         <DialogTitle>Student Photo</DialogTitle>
         <DialogContent>
-          {selectedPhoto ? (
+          {photoLoading ? (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+              <CircularProgress />
+            </Box>
+          ) : selectedPhoto ? (
             <img src={`data:image/jpeg;base64,${selectedPhoto}`} alt="Student" style={{ width: '100%' }} />
           ) : (
             'No Photo Available'
