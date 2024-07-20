@@ -18,6 +18,7 @@ import {
   FormControl,
   InputLabel,
   Alert,
+  Snackbar,
 } from "@mui/material";
 import FaceIcon from "@mui/icons-material/Face";
 import { useNavigate } from "react-router-dom";
@@ -44,6 +45,8 @@ const Dashboard = ({ onLogout }) => {
   const [photoPreview, setPhotoPreview] = useState("");
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [refresh, setRefresh] = useState(false); // Estado para actualizar la tabla
 
   const navigate = useNavigate();
 
@@ -92,15 +95,6 @@ const Dashboard = ({ onLogout }) => {
   const handleClose = () => {
     stopCamera();
     setOpen(false);
-    setNewStudent({
-      nombre_name: "",
-      apellido: "",
-      numero_documento: "",
-      programa_id: "",
-      photo_estudiante: "",
-    });
-    setErrors([]);
-    setPhotoPreview("");
   };
 
   const handleChange = (e) => {
@@ -156,8 +150,11 @@ const Dashboard = ({ onLogout }) => {
       });
       setStudents([...students, response.data]);
       setOpen(false);
+      setSnackbar({ open: true, message: 'Student registered successfully', severity: 'success' });
+      setRefresh(!refresh); // Actualiza la tabla
     } catch (error) {
       console.error("Error adding student:", error);
+      setSnackbar({ open: true, message: error.response?.data?.error || 'Error registering student', severity: 'error' });
     }
   };
 
@@ -200,6 +197,10 @@ const Dashboard = ({ onLogout }) => {
     stopCamera();
   };
 
+  const handleCloseSnackbar = () => {
+    setSnackbar({ open: false, message: '', severity: 'success' });
+  };
+
   return (
     <div className="Dashbody">
       <Box
@@ -236,7 +237,7 @@ const Dashboard = ({ onLogout }) => {
       ) : (
         <>
           <Paper>
-            <StudentTable students={students} />
+            <StudentTable refresh={refresh} students={students} />
           </Paper>
 
           <Paper className="table-container">
@@ -294,6 +295,7 @@ const Dashboard = ({ onLogout }) => {
           />
           <FormControl fullWidth margin="dense">
             <InputLabel id="programa_id-label">Programa</InputLabel>
+
             <Select
               labelId="programa_id-label"
               name="programa_id"
@@ -350,6 +352,11 @@ const Dashboard = ({ onLogout }) => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
