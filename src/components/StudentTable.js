@@ -15,12 +15,18 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  IconButton
+  IconButton,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import PhotoIcon from '@mui/icons-material/Photo';
 
 const StudentTable = () => {
   const [students, setStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -28,6 +34,8 @@ const StudentTable = () => {
   const [open, setOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState('');
   const [photoLoading, setPhotoLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortOrder, setSortOrder] = useState('');
 
   const fetchStudents = useCallback(async () => {
     setLoading(true);
@@ -48,6 +56,24 @@ const StudentTable = () => {
   useEffect(() => {
     fetchStudents();
   }, [fetchStudents]);
+
+  useEffect(() => {
+    let filtered = students;
+
+    if (searchTerm) {
+      filtered = students.filter(student =>
+        `${student.nombre_name} ${student.apellido}`.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (sortOrder === 'name') {
+      filtered.sort((a, b) => a.nombre_name.localeCompare(b.nombre_name));
+    } else if (sortOrder === 'date') {
+      filtered.sort((a, b) => new Date(a.fecha_inscripcion) - new Date(b.fecha_inscripcion));
+    }
+
+    setFilteredStudents(filtered);
+  }, [students, searchTerm, sortOrder]);
 
   const fetchStudentPhoto = async (studentId) => {
     setPhotoLoading(true);
@@ -79,11 +105,42 @@ const StudentTable = () => {
     setOpen(false);
   };
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleSortChange = (e) => {
+    setSortOrder(e.target.value);
+  };
+
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <Typography variant="h4" gutterBottom align="center" sx={{ bgcolor: '#45BF55', padding: 2, color: '#ffffff' }}>
         Student Table
       </Typography>
+      <Box display="flex" justifyContent="space-between" p={2}>
+        <TextField
+          label="Buscar por nombre o apellido"
+          variant="outlined"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          sx={{ width: '60%' }}
+        />
+        <FormControl variant="outlined" sx={{ width: '35%' }}>
+          <InputLabel>Ordenar por</InputLabel>
+          <Select
+            value={sortOrder}
+            onChange={handleSortChange}
+            label="Ordenar por"
+          >
+            <MenuItem value="">
+              <em>None</em>
+            </MenuItem>
+            <MenuItem value="name">Nombre</MenuItem>
+            <MenuItem value="date">Fecha de inscripción</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" height="100%">
           <CircularProgress />
@@ -101,7 +158,7 @@ const StudentTable = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {students.map((student) => (
+                {filteredStudents.map((student) => (
                   <TableRow key={student._id} sx={{ borderBottom: '2px solid #2E9CCA' }}>
                     <TableCell>{student.nombre_name}</TableCell>
                     <TableCell>{student.apellido}</TableCell>

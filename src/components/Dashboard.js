@@ -92,6 +92,15 @@ const Dashboard = ({ onLogout }) => {
   const handleClose = () => {
     stopCamera();
     setOpen(false);
+    setNewStudent({
+      nombre_name: "",
+      apellido: "",
+      numero_documento: "",
+      programa_id: "",
+      photo_estudiante: "",
+    });
+    setErrors([]);
+    setPhotoPreview("");
   };
 
   const handleChange = (e) => {
@@ -285,7 +294,6 @@ const Dashboard = ({ onLogout }) => {
           />
           <FormControl fullWidth margin="dense">
             <InputLabel id="programa_id-label">Programa</InputLabel>
-
             <Select
               labelId="programa_id-label"
               name="programa_id"
