@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Paper, CircularProgress, IconButton, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel, Snackbar, Alert, Button, TextField } from '@mui/material';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import EditIcon from '@mui/icons-material/Edit';
+import { Box, Typography, Paper, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel, Snackbar, Alert, Button, TextField } from '@mui/material';
 import axios from 'axios';
 
 const StudentProfile = ({ user, onLogout }) => {
@@ -10,25 +8,27 @@ const StudentProfile = ({ user, onLogout }) => {
   const [openEnroll, setOpenEnroll] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [courses, setCourses] = useState([]);
-  const [enrollment, setEnrollment] = useState({ course: '', student: user.estudiante_id });
+  const [enrollment, setEnrollment] = useState({ course: '', student: user?.estudiante_id || '' });
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
-    const fetchStudent = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`/api/estudiantes/${user.estudiante_id}`);
-        console.log('Student Data:', response.data); // Verificar los datos obtenidos
-        setStudent(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching student:', error);
-        setLoading(false);
-      }
-    };
+    if (user && user.estudiante_id) {
+      const fetchStudent = async () => {
+        setLoading(true);
+        try {
+          const response = await axios.get(`/api/estudiantes/${user.estudiante_id}`);
+          console.log('Student Data:', response.data);
+          setStudent(response.data);
+          setLoading(false);
+        } catch (error) {
+          console.error('Error fetching student:', error);
+          setLoading(false);
+        }
+      };
 
-    fetchStudent();
-  }, [user.estudiante_id]);
+      fetchStudent();
+    }
+  }, [user]);
 
   const handleOpenEnroll = async () => {
     setOpenEnroll(true);
@@ -96,9 +96,12 @@ const StudentProfile = ({ user, onLogout }) => {
     }
   };
 
+  if (!user || !user.estudiante_id) {
+    return <Typography variant="h5" gutterBottom>No se pudo cargar el perfil del estudiante</Typography>;
+  }
+
   return (
     <Box sx={{ p: 3 }}>
-
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" height="100%">
           <CircularProgress />

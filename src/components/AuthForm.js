@@ -3,6 +3,7 @@ import axios from 'axios';
 import { TextField, Button, Box, Typography, Paper, Checkbox, FormControlLabel, Snackbar, Alert } from '@mui/material';
 import { Person as PersonIcon, Lock as LockIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';  // Importar jwtDecode correctamente
 import './css/AuthForm.css';
 
 const AuthForm = ({ onAuth }) => {
@@ -16,8 +17,14 @@ const AuthForm = ({ onAuth }) => {
     try {
       const response = await axios.post('http://localhost:3000/api/auth/login', { hash_usuario, hash_password });
       localStorage.setItem('token', response.data.token); // Guardar el token en localStorage
+      const decoded = jwtDecode(response.data.token); // Decodificar el token para obtener el rol del usuario
       onAuth(response.data.token); // Pasar el token a la función onAuth
-      navigate('/dashboard'); // Redirigir al usuario después de iniciar sesión
+      // Redirigir al usuario según su rol
+      if (decoded.role === 'admin') {
+        navigate('/dashboard');
+      } else if (decoded.role === 'student') {
+        navigate('/profile');
+      }
     } catch (error) {
       setSnackbar({ open: true, message: 'Credenciales incorrectas', severity: 'error' });
     }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, CssBaseline, AppBar, Toolbar, Typography, Button } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';  // Importar jwtDecode correctamente
 import AuthForm from './components/AuthForm';
 import Dashboard from './components/Dashboard';
 import StudentProfile from './components/StudentProfile';
@@ -30,9 +30,14 @@ const App = () => {
   const navigate = useNavigate();
 
   const handleAuth = (token) => {
-    const decoded = jwtDecode(token);
-    localStorage.setItem('token', token);
-    setUser(decoded);
+    try {
+      const decoded = jwtDecode(token);
+      console.log('Decoded JWT:', decoded);  // Verificar el contenido del token decodificado
+      localStorage.setItem('token', token);
+      setUser(decoded);
+    } catch (error) {
+      console.error('Error decoding JWT:', error);
+    }
   };
 
   const logout = () => {
@@ -44,8 +49,13 @@ const App = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      const decoded = jwtDecode(token);
-      setUser(decoded);
+      try {
+        const decoded = jwtDecode(token);
+        console.log('Decoded JWT on reload:', decoded);  // Verificar el contenido del token decodificado
+        setUser(decoded);
+      } catch (error) {
+        console.error('Error decoding JWT on reload:', error);
+      }
     }
   }, []);
 
@@ -65,7 +75,7 @@ const App = () => {
           <Route path="/" element={<Navigate to={user ? (user.role === 'admin' ? '/dashboard' : '/profile') : '/login'} />} />
           <Route path="/login" element={<AuthForm onAuth={handleAuth} />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><StudentProfile /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><StudentProfile user={user} /></ProtectedRoute>} />
           <Route path="/face-recognition" element={<ProtectedRoute><FaceRecognition /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
@@ -81,3 +91,4 @@ const AppWrapper = () => (
 );
 
 export default AppWrapper;
+  
