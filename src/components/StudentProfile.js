@@ -14,28 +14,29 @@ const StudentProfile = ({ user }) => {
 
   useEffect(() => {
     if (user && user.estudiante_id) {
-      const fetchStudent = async () => {
-        setLoading(true);
-        try {
-          const response = await axios.get(`http://localhost:3000/api/estudiantes/${user.estudiante_id}`);
-          console.log('Student Data:', response.data);
-          setStudent(response.data);
-          setLoading(false);
-        } catch (error) {
-          console.error('Error fetching student:', error);
-          setLoading(false);
-        }
-      };
-
       fetchStudent();
     }
   }, [user]);
+
+  const fetchStudent = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`http://localhost:3000/api/estudiantes/${user.estudiante_id}`);
+      console.log('Student Data:', response.data);
+      setStudent(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching student:', error);
+      setLoading(false);
+    }
+  };
 
   const handleOpenEnroll = async () => {
     setOpenEnroll(true);
     try {
       const response = await axios.get('http://localhost:3000/api/materias');
-      setCourses(response.data.courses);
+      console.log('Courses fetched:', response.data.courses); 
+      setCourses(response.data.courses); 
     } catch (error) {
       console.error('Error fetching courses:', error);
     }
@@ -56,9 +57,13 @@ const StudentProfile = ({ user }) => {
   const handleEnrollSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3000/api/inscripciones', enrollment);
+      await axios.post('http://localhost:3000/api/inscripciones', {
+        materia_id: enrollment.course,
+        estudiante_id: user.estudiante_id
+      });
       setSnackbar({ open: true, message: 'Enrolled successfully', severity: 'success' });
       setOpenEnroll(false);
+      fetchStudent(); 
     } catch (error) {
       console.error('Error enrolling:', error);
       setSnackbar({ open: true, message: 'Error enrolling', severity: 'error' });
@@ -98,7 +103,7 @@ const StudentProfile = ({ user }) => {
     e.preventDefault();
     const updatedStudent = { ...student };
     if (newPhoto) {
-      updatedStudent.photo_estudiante = newPhoto.split(',')[1]; // Remove the base64 prefix
+      updatedStudent.photo_estudiante = newPhoto.split(',')[1]; 
     }
     try {
       await axios.put(`http://localhost:3000/api/estudiantes/${user.estudiante_id}`, updatedStudent);
