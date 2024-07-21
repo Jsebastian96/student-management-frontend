@@ -21,6 +21,7 @@ import {
   Snackbar,
 } from "@mui/material";
 import FaceIcon from "@mui/icons-material/Face";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import StudentTable from "./StudentTable";
@@ -46,7 +47,6 @@ const Dashboard = ({ onLogout }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-  const [refresh, setRefresh] = useState(false); // Estado para actualizar la tabla
 
   const navigate = useNavigate();
 
@@ -64,16 +64,9 @@ const Dashboard = ({ onLogout }) => {
           "http://localhost:3000/api/programas"
         );
 
-        console.log("Students Response:", studentsResponse.data);
-        console.log("Courses Response:", coursesResponse.data);
-        console.log("Programs Response:", programsResponse.data);
-
         setStudents(studentsResponse.data.students);
         setCourses(coursesResponse.data.courses);
         setPrograms(programsResponse.data);
-
-        // Log adicional para verificar el estado
-        console.log("Programs State after setPrograms:", programsResponse.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -127,7 +120,7 @@ const Dashboard = ({ onLogout }) => {
 
   const handleAddStudent = async () => {
     if (!validateFields()) return;
-
+  
     try {
       const formData = new FormData();
       formData.append("nombre_name", newStudent.nombre_name);
@@ -142,8 +135,8 @@ const Dashboard = ({ onLogout }) => {
           new File([blob], `${newStudent.numero_documento}.png`)
         );
       }
-
-      const response = await axios.post("/api/estudiantes", formData, {
+  
+      const response = await axios.post("http://localhost:3000/api/estudiantes", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -151,12 +144,12 @@ const Dashboard = ({ onLogout }) => {
       setStudents([...students, response.data]);
       setOpen(false);
       setSnackbar({ open: true, message: 'Student registered successfully', severity: 'success' });
-      setRefresh(!refresh); // Actualiza la tabla
     } catch (error) {
       console.error("Error adding student:", error);
       setSnackbar({ open: true, message: error.response?.data?.error || 'Error registering student', severity: 'error' });
     }
   };
+  
 
   const startCamera = () => {
     setCameraOpen(true);
@@ -195,6 +188,16 @@ const Dashboard = ({ onLogout }) => {
     setNewStudent({ ...newStudent, photo_estudiante: photo });
     setPhotoPreview(photo);
     stopCamera();
+  };
+
+  const handlePhotoUpload = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setNewStudent({ ...newStudent, photo_estudiante: reader.result });
+      setPhotoPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleCloseSnackbar = () => {
@@ -237,7 +240,7 @@ const Dashboard = ({ onLogout }) => {
       ) : (
         <>
           <Paper>
-            <StudentTable refresh={refresh} students={students} />
+            <StudentTable students={students} />
           </Paper>
 
           <Paper className="table-container">
@@ -315,9 +318,28 @@ const Dashboard = ({ onLogout }) => {
           </FormControl>
           <div style={{ textAlign: "center", marginTop: "10px" }}>
             {!cameraOpen ? (
-              <Button variant="contained" color="primary" onClick={startCamera}>
-                Start Camera
-              </Button>
+              <>
+                <Button variant="contained" color="primary" onClick={startCamera}>
+                  Start Camera
+                </Button>
+                <input
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  id="upload-photo"
+                  type="file"
+                  onChange={handlePhotoUpload}
+                />
+                <label htmlFor="upload-photo">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    component="span"
+                    startIcon={<PhotoCameraIcon />}
+                  >
+                    Upload Photo
+                  </Button>
+                </label>
+              </>
             ) : (
               <div>
                 <video ref={videoRef} width="320" height="240" autoPlay />
