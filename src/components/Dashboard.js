@@ -21,7 +21,7 @@ import {
   Snackbar,
 } from "@mui/material";
 import FaceIcon from "@mui/icons-material/Face";
-import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import UploadIcon from "@mui/icons-material/Upload";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import StudentTable from "./StudentTable";
@@ -119,37 +119,31 @@ const Dashboard = ({ onLogout }) => {
   };
 
   const handleAddStudent = async () => {
-    if (!validateFields()) return;
-  
-    try {
-      const formData = new FormData();
-      formData.append("nombre_name", newStudent.nombre_name);
-      formData.append("apellido", newStudent.apellido);
-      formData.append("numero_documento", newStudent.numero_documento);
-      formData.append("programa_id", newStudent.programa_id);
-      if (newStudent.photo_estudiante) {
-        const response = await fetch(newStudent.photo_estudiante);
-        const blob = await response.blob();
-        formData.append(
-          "photo",
-          new File([blob], `${newStudent.numero_documento}.png`)
-        );
-      }
-  
-      const response = await axios.post("http://localhost:3000/api/estudiantes", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      setStudents([...students, response.data]);
-      setOpen(false);
-      setSnackbar({ open: true, message: 'Student registered successfully', severity: 'success' });
-    } catch (error) {
-      console.error("Error adding student:", error);
-      setSnackbar({ open: true, message: error.response?.data?.error || 'Error registering student', severity: 'error' });
+  if (!validateFields()) return;
+
+  try {
+    const formData = new FormData();
+    formData.append("nombre_name", newStudent.nombre_name);
+    formData.append("apellido", newStudent.apellido);
+    formData.append("numero_documento", newStudent.numero_documento);
+    formData.append("programa_id", newStudent.programa_id);
+    if (newStudent.photo_estudiante) {
+      formData.append("photo_estudiante", newStudent.photo_estudiante);
     }
-  };
-  
+
+    const response = await axios.post("http://localhost:3000/api/estudiantes", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    setStudents([...students, response.data]);
+    setOpen(false);
+    setSnackbar({ open: true, message: 'Student registered successfully', severity: 'success' });
+  } catch (error) {
+    console.error("Error adding student:", error);
+    setSnackbar({ open: true, message: error.response?.data?.error || 'Error registering student', severity: 'error' });
+  }
+};
 
   const startCamera = () => {
     setCameraOpen(true);
@@ -190,14 +184,16 @@ const Dashboard = ({ onLogout }) => {
     stopCamera();
   };
 
-  const handlePhotoUpload = (event) => {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setNewStudent({ ...newStudent, photo_estudiante: reader.result });
-      setPhotoPreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+  const handleUploadPhoto = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setNewStudent({ ...newStudent, photo_estudiante: reader.result });
+        setPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleCloseSnackbar = () => {
@@ -327,15 +323,10 @@ const Dashboard = ({ onLogout }) => {
                   style={{ display: 'none' }}
                   id="upload-photo"
                   type="file"
-                  onChange={handlePhotoUpload}
+                  onChange={handleUploadPhoto}
                 />
                 <label htmlFor="upload-photo">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    component="span"
-                    startIcon={<PhotoCameraIcon />}
-                  >
+                  <Button variant="contained" color="primary" component="span" startIcon={<UploadIcon />}>
                     Upload Photo
                   </Button>
                 </label>
