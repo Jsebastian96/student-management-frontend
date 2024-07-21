@@ -119,31 +119,32 @@ const Dashboard = ({ onLogout }) => {
   };
 
   const handleAddStudent = async () => {
-  if (!validateFields()) return;
-
-  try {
-    const formData = new FormData();
-    formData.append("nombre_name", newStudent.nombre_name);
-    formData.append("apellido", newStudent.apellido);
-    formData.append("numero_documento", newStudent.numero_documento);
-    formData.append("programa_id", newStudent.programa_id);
-    if (newStudent.photo_estudiante) {
-      formData.append("photo_estudiante", newStudent.photo_estudiante);
+    if (!validateFields()) return;
+  
+    try {
+      const formData = new FormData();
+      formData.append("nombre_name", newStudent.nombre_name);
+      formData.append("apellido", newStudent.apellido);
+      formData.append("numero_documento", newStudent.numero_documento);
+      formData.append("programa_id", newStudent.programa_id);
+      if (newStudent.photo_estudiante) {
+        formData.append("photo_estudiante", newStudent.photo_estudiante);
+      }
+  
+      const response = await axios.post("http://localhost:3000/api/estudiantes", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      setStudents([...students, response.data]);
+      setOpen(false);
+      setSnackbar({ open: true, message: 'Student registered successfully', severity: 'success' });
+    } catch (error) {
+      console.error("Error adding student:", error);
+      setSnackbar({ open: true, message: error.response?.data?.error || 'Error registering student', severity: 'error' });
     }
-
-    const response = await axios.post("http://localhost:3000/api/estudiantes", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    setStudents([...students, response.data]);
-    setOpen(false);
-    setSnackbar({ open: true, message: 'Student registered successfully', severity: 'success' });
-  } catch (error) {
-    console.error("Error adding student:", error);
-    setSnackbar({ open: true, message: error.response?.data?.error || 'Error registering student', severity: 'error' });
-  }
-};
+  };
+  
 
   const startCamera = () => {
     setCameraOpen(true);
@@ -294,7 +295,6 @@ const Dashboard = ({ onLogout }) => {
           />
           <FormControl fullWidth margin="dense">
             <InputLabel id="programa_id-label">Programa</InputLabel>
-
             <Select
               labelId="programa_id-label"
               name="programa_id"
