@@ -57,13 +57,18 @@ const StudentProfile = ({ user }) => {
   const handleEnrollSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3000/api/inscripciones', {
-        materia_id: enrollment.course,
-        estudiante_id: user.estudiante_id
-      });
-      setSnackbar({ open: true, message: 'Enrolled successfully', severity: 'success' });
-      setOpenEnroll(false);
-      fetchStudent(); 
+      const selectedCourse = courses.find(c => c._id === enrollment.course);
+      if (selectedCourse && selectedCourse.cuposDisponibles > 0) {
+        await axios.post('http://localhost:3000/api/inscripciones', {
+          materia_id: enrollment.course,
+          estudiante_id: user.estudiante_id
+        });
+        setSnackbar({ open: true, message: 'Enrolled successfully', severity: 'success' });
+        setOpenEnroll(false);
+        fetchStudent(); 
+      } else {
+        setSnackbar({ open: true, message: 'No hay cupos disponibles para este curso', severity: 'warning' });
+      }
     } catch (error) {
       console.error('Error enrolling:', error);
       setSnackbar({ open: true, message: 'Error enrolling', severity: 'error' });
@@ -167,13 +172,13 @@ const StudentProfile = ({ user }) => {
                 onChange={handleEnrollChange}
               >
                 {courses.map((course) => (
-                  <MenuItem key={course._id} value={course._id}>
-                    {course.nombre}
+                  <MenuItem key={course._id} value={course._id} disabled={course.cuposDisponibles === 0}>
+                    {course.nombre} {course.cuposDisponibles === 0 ? '(Sin cupos disponibles)' : ''}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
-            <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
+            <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }} disabled={!enrollment.course || courses.find(c => c._id === enrollment.course)?.cuposDisponibles === 0}>
               Inscribir
             </Button>
           </form>
