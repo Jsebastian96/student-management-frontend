@@ -23,6 +23,7 @@ import {
   InputLabel
 } from '@mui/material';
 import PhotoIcon from '@mui/icons-material/Photo';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const StudentTable = () => {
   const [students, setStudents] = useState([]);
@@ -34,7 +35,7 @@ const StudentTable = () => {
   const [selectedPhoto, setSelectedPhoto] = useState('');
   const [photoLoading, setPhotoLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortOption, setSortOption] = useState('nombre_name');
+  const [sortOption, setSortOption] = useState('');
 
   const fetchStudents = useCallback(async () => {
     setLoading(true);
@@ -95,6 +96,15 @@ const StudentTable = () => {
     setSortOption(event.target.value);
   };
 
+  const handleDeleteStudent = async (studentId) => {
+    try {
+      await axios.delete(`http://localhost:3000/api/estudiantes/${studentId}`);
+      fetchStudents();
+    } catch (error) {
+      console.error('Error deleting student:', error);
+    }
+  };
+
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <Typography variant="h4" gutterBottom align="center" sx={{ bgcolor: '#45BF55', padding: 2, color: '#ffffff' }}>
@@ -115,6 +125,9 @@ const StudentTable = () => {
             onChange={handleSortChange}
             label="Ordenar por"
           >
+            <MenuItem value="">
+              <em>Ninguno</em>
+            </MenuItem>
             <MenuItem value="nombre_name">Nombre</MenuItem>
             <MenuItem value="apellido">Apellido</MenuItem>
             <MenuItem value="fecha_inscripcion">Fecha de Inscripción</MenuItem>
@@ -135,6 +148,7 @@ const StudentTable = () => {
                   <TableCell>Apellido</TableCell>
                   <TableCell>Documento</TableCell>
                   <TableCell>Foto</TableCell>
+                  <TableCell>Eliminar</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -146,6 +160,11 @@ const StudentTable = () => {
                     <TableCell>
                       <IconButton onClick={() => handleOpenPhoto(student._id)} disabled={photoLoading}>
                         <PhotoIcon />
+                      </IconButton>
+                    </TableCell>
+                    <TableCell>
+                      <IconButton onClick={() => handleDeleteStudent(student._id)}>
+                        <DeleteIcon />
                       </IconButton>
                     </TableCell>
                   </TableRow>
