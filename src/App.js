@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, CssBaseline, AppBar, Toolbar, Typography, Button } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';  // Importar jwtDecode correctamente
+import { jwtDecode } from 'jwt-decode';  
 import AuthForm from './components/AuthForm';
 import Dashboard from './components/Dashboard';
 import StudentProfile from './components/StudentProfile';

@@ -122,9 +122,6 @@ const CourseTable = () => {
             onChange={handleSortChange}
             label="Ordenar por"
           >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
             <MenuItem value="name">Nombre</MenuItem>
             <MenuItem value="date">Fecha de creación</MenuItem>
           </Select>

@@ -51,31 +51,39 @@ const Dashboard = ({ onLogout }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const studentsResponse = await axios.get(
+          "http://localhost:3000/api/estudiantes"
+        );
+        const coursesResponse = await axios.get(
+          "http://localhost:3000/api/materias"
+        );
+        const programsResponse = await axios.get(
+          "http://localhost:3000/api/programas"
+        );
+
+        console.log("Students Response:", studentsResponse.data);
+        console.log("Courses Response:", coursesResponse.data);
+        console.log("Programs Response:", programsResponse.data);
+
+        setStudents(studentsResponse.data.students);
+        setCourses(coursesResponse.data.courses);
+        setPrograms(programsResponse.data);
+
+        // Log adicional para verificar el estado
+        console.log("Programs State after setPrograms:", programsResponse.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const studentsResponse = await axios.get(
-        "http://localhost:3000/api/estudiantes"
-      );
-      const coursesResponse = await axios.get(
-        "http://localhost:3000/api/materias"
-      );
-      const programsResponse = await axios.get(
-        "http://localhost:3000/api/programas"
-      );
-
-      setStudents(studentsResponse.data.students);
-      setCourses(coursesResponse.data.courses);
-      setPrograms(programsResponse.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleFaceRecognitionClick = () => {
     navigate("/face-recognition");
@@ -120,7 +128,7 @@ const Dashboard = ({ onLogout }) => {
 
   const handleAddStudent = async () => {
     if (!validateFields()) return;
-
+  
     try {
       const formData = new FormData();
       formData.append("nombre_name", newStudent.nombre_name);
@@ -130,15 +138,15 @@ const Dashboard = ({ onLogout }) => {
       if (newStudent.photo_estudiante) {
         formData.append("photo_estudiante", newStudent.photo_estudiante);
       }
-
-      await axios.post("http://localhost:3000/api/estudiantes", formData, {
+  
+      const response = await axios.post("/api/estudiantes", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      setSnackbar({ open: true, message: 'Student registered successfully', severity: 'success' });
-      fetchData(); // Refrescar la lista de estudiantes
+      setStudents([...students, response.data]);
       setOpen(false);
+      setSnackbar({ open: true, message: 'Student registered successfully', severity: 'success' });
     } catch (error) {
       console.error("Error adding student:", error);
       setSnackbar({ open: true, message: error.response?.data?.error || 'Error registering student', severity: 'error' });
@@ -292,8 +300,9 @@ const Dashboard = ({ onLogout }) => {
             value={newStudent.numero_documento}
             onChange={handleChange}
           />
-          <FormControl fullWidth margin="dense">
+           <FormControl fullWidth margin="dense">
             <InputLabel id="programa_id-label">Programa</InputLabel>
+
             <Select
               labelId="programa_id-label"
               name="programa_id"

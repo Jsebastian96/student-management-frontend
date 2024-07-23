@@ -35,7 +35,7 @@ const StudentTable = () => {
   const [selectedPhoto, setSelectedPhoto] = useState('');
   const [photoLoading, setPhotoLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortOption, setSortOption] = useState('');
+  const [sortOption, setSortOption] = useState('fecha_inscripcion');
 
   const fetchStudents = useCallback(async () => {
     setLoading(true);
@@ -43,6 +43,7 @@ const StudentTable = () => {
       const response = await axios.get('http://localhost:3000/api/estudiantes', {
         params: { pageNumber: page + 1, pageSize: rowsPerPage, searchQuery, sortOption }
       });
+      console.log('API Response:', response.data);
       const { students = [], totalStudents = 0 } = response.data;
       setStudents(students);
       setTotalStudents(totalStudents);
@@ -56,6 +57,8 @@ const StudentTable = () => {
   useEffect(() => {
     fetchStudents();
   }, [fetchStudents]);
+
+  
 
   const fetchStudentPhoto = async (studentId) => {
     setPhotoLoading(true);
@@ -94,6 +97,7 @@ const StudentTable = () => {
 
   const handleSortChange = (event) => {
     setSortOption(event.target.value);
+    setPage(0);
   };
 
   const handleDeleteStudent = async (studentId) => {
@@ -116,23 +120,20 @@ const StudentTable = () => {
           variant="outlined"
           value={searchQuery}
           onChange={handleSearchChange}
-          sx={{ width: '70%' }}
+          sx={{ width: '60%' }}
         />
-        <FormControl variant="outlined" sx={{ width: '25%' }}>
+        <FormControl variant="outlined" sx={{ width: '35%' }}>
           <InputLabel>Ordenar por</InputLabel>
           <Select
             value={sortOption}
             onChange={handleSortChange}
             label="Ordenar por"
           >
-            <MenuItem value="">
-              <em>Ninguno</em>
-            </MenuItem>
             <MenuItem value="nombre_name">Nombre</MenuItem>
             <MenuItem value="apellido">Apellido</MenuItem>
             <MenuItem value="fecha_inscripcion">Fecha de Inscripción</MenuItem>
-          </Select>
-        </FormControl>
+        </Select>
+        </FormControl>  
       </Box>
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" height="100%">
@@ -148,7 +149,7 @@ const StudentTable = () => {
                   <TableCell>Apellido</TableCell>
                   <TableCell>Documento</TableCell>
                   <TableCell>Foto</TableCell>
-                  <TableCell>Eliminar</TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
