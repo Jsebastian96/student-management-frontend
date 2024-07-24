@@ -34,6 +34,10 @@ const Dashboard = ({ onLogout }) => {
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+
+  const [openEnrollDialog, setOpenEnrollDialog] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(''); 
+  const [selectedCourse, setSelectedCourse] = useState(''); 
   const [newStudent, setNewStudent] = useState({
     nombre_name: "",
     apellido: "",
@@ -51,6 +55,9 @@ const Dashboard = ({ onLogout }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+
+    fetchData();
+  }, []);
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -81,12 +88,18 @@ const Dashboard = ({ onLogout }) => {
       }
     };
 
-    fetchData();
-  }, []);
-
+ 
 
   const handleFaceRecognitionClick = () => {
     navigate("/face-recognition");
+  };
+
+  const handleEnrollClickOpen = () => {
+    setOpenEnrollDialog(true);
+  };
+
+  const handleEnrollClose = () => {
+    setOpenEnrollDialog(false);
   };
 
   const handleClickOpen = () => {
@@ -103,6 +116,28 @@ const Dashboard = ({ onLogout }) => {
       ...newStudent,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleEnrollChange = (e) => {
+    if (e.target.name === "student") {
+      setSelectedStudent(e.target.value);
+    } else if (e.target.name === "course") {
+      setSelectedCourse(e.target.value);
+    }
+  };
+
+  const handleEnrollStudent = async () => {
+    try {
+      await axios.post("http://localhost:3000/api/inscripciones/admin-enroll", {
+        estudiante_id: selectedStudent,
+        materia_id: selectedCourse
+      });
+      setSnackbar({ open: true, message: 'Estudiante inscrito exitosamente', severity: 'success' });
+      setOpenEnrollDialog(false);
+    } catch (error) {
+      console.error("Error enrolling student:", error);
+      setSnackbar({ open: true, message: error.response?.data?.message || 'Error al inscribir estudiante', severity: 'error' });
+    }
   };
 
   const validateFields = () => {
@@ -128,7 +163,7 @@ const Dashboard = ({ onLogout }) => {
 
   const handleAddStudent = async () => {
     if (!validateFields()) return;
-  
+
     try {
       const formData = new FormData();
       formData.append("nombre_name", newStudent.nombre_name);
@@ -138,15 +173,15 @@ const Dashboard = ({ onLogout }) => {
       if (newStudent.photo_estudiante) {
         formData.append("photo_estudiante", newStudent.photo_estudiante);
       }
-  
-      const response = await axios.post("/api/estudiantes", formData, {
+
+      await axios.post("http://localhost:3000/api/estudiantes", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      setStudents([...students, response.data]);
-      setOpen(false);
       setSnackbar({ open: true, message: 'Student registered successfully', severity: 'success' });
+      fetchData(); 
+      setOpen(false);
     } catch (error) {
       console.error("Error adding student:", error);
       setSnackbar({ open: true, message: error.response?.data?.error || 'Error registering student', severity: 'error' });
@@ -231,6 +266,9 @@ const Dashboard = ({ onLogout }) => {
         <Button variant="contained" color="primary" onClick={handleClickOpen}>
           Add Student
         </Button>
+        <Button variant="contained" color="primary" onClick={handleEnrollClickOpen}>
+          Inscribir materias
+        </Button>
       </Box>
       {loading ? (
         <Box
@@ -300,9 +338,8 @@ const Dashboard = ({ onLogout }) => {
             value={newStudent.numero_documento}
             onChange={handleChange}
           />
-           <FormControl fullWidth margin="dense">
+          <FormControl fullWidth margin="dense">
             <InputLabel id="programa_id-label">Programa</InputLabel>
-
             <Select
               labelId="programa_id-label"
               name="programa_id"
@@ -373,6 +410,54 @@ const Dashboard = ({ onLogout }) => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Dialog open={openEnrollDialog} onClose={handleEnrollClose}>
+        <DialogTitle>Inscripción de materias</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Selecciona un estudiante y una materia para inscribir.
+          </DialogContentText>
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="student-label">Estudiante</InputLabel>
+            <Select
+              labelId="student-label"
+              name="student"
+              value={selectedStudent}
+              onChange={handleEnrollChange}
+            >
+              {students.map((student) => (
+                <MenuItem key={student._id} value={student._id}>
+                  {student.nombre_name} {student.apellido}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="course-label">Materia</InputLabel>
+            <Select
+              labelId="course-label"
+              name="course"
+              value={selectedCourse}
+              onChange={handleEnrollChange}
+            >
+              {courses.map((course) => (
+                <MenuItem key={course._id} value={course._id}>
+                  {course.nombre}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleEnrollClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleEnrollStudent} color="primary">
+            Inscribir
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
           {snackbar.message}

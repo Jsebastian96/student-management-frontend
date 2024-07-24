@@ -43,7 +43,6 @@ const StudentTable = () => {
       const response = await axios.get('http://localhost:3000/api/estudiantes', {
         params: { pageNumber: page + 1, pageSize: rowsPerPage, searchQuery, sortOption }
       });
-      console.log('API Response:', response.data);
       const { students = [], totalStudents = 0 } = response.data;
       setStudents(students);
       setTotalStudents(totalStudents);
@@ -57,8 +56,6 @@ const StudentTable = () => {
   useEffect(() => {
     fetchStudents();
   }, [fetchStudents]);
-
-  
 
   const fetchStudentPhoto = async (studentId) => {
     setPhotoLoading(true);
@@ -132,8 +129,8 @@ const StudentTable = () => {
             <MenuItem value="nombre_name">Nombre</MenuItem>
             <MenuItem value="apellido">Apellido</MenuItem>
             <MenuItem value="fecha_inscripcion">Fecha de Inscripción</MenuItem>
-        </Select>
-        </FormControl>  
+          </Select>
+        </FormControl>
       </Box>
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" height="100%">
