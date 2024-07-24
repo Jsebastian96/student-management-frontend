@@ -99,7 +99,7 @@ const StudentTable = () => {
 
   const handleDeleteStudent = async (studentId) => {
     try {
-      await axios.delete(`https://73b5-132-255-20-66.ngrok-free.app/estudiantes/${studentId}`);
+      await axios.delete(`https://73b5-132-255-20-66.ngrok-free.app/api/estudiantes/${studentId}`);
       fetchStudents();
     } catch (error) {
       console.error('Error deleting student:', error);
