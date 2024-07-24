@@ -22,7 +22,7 @@ const StudentForm = ({ studentId, onSubmit }) => {
 
   useEffect(() => {
     const fetchPrograms = async () => {
-      const response = await axios.get("http://localhost:3000/api/programas");
+      const response = await axios.get("https://73b5-132-255-20-66.ngrok-free.app/api/programas");
       setPrograms(response.data);
     };
     fetchPrograms();
@@ -30,7 +30,7 @@ const StudentForm = ({ studentId, onSubmit }) => {
     if (studentId) {
       const fetchStudent = async () => {
         const response = await axios.get(
-          `http://localhost:3000/api/estudiantes/${studentId}`
+          `https://73b5-132-255-20-66.ngrok-free.app/api/estudiantes/${studentId}`
         );
         setStudent(response.data);
       };
@@ -59,11 +59,11 @@ const StudentForm = ({ studentId, onSubmit }) => {
 
     if (studentId) {
       await axios.put(
-        `http://localhost:3000/api/estudiantes/${studentId}`,
+        `https://73b5-132-255-20-66.ngrok-free.app/api/estudiantes/${studentId}`,
         formData
       );
     } else {
-      await axios.post("http://localhost:3000/api/estudiantes", formData);
+      await axios.post("https://73b5-132-255-20-66.ngrok-free.app/api/estudiantes", formData);
     }
 
     if (onSubmit) onSubmit();

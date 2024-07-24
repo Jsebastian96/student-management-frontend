@@ -59,7 +59,7 @@ const FaceRecognition = () => {
 
   const sendImageToServer = async (dataUrl) => {
     try {
-      const response = await fetch('http://localhost:3001/api/recognize', {
+      const response = await fetch('https://73b5-132-255-20-66.ngrok-free.app/api/recognize', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
