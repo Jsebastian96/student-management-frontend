@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as faceapi from 'face-api.js';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './css/FaceRecognition.css';  
 
 const FaceRecognition = () => {
   const videoRef = useRef();
@@ -37,8 +38,22 @@ const FaceRecognition = () => {
       const context = canvas.getContext('2d');
       context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
       const dataUrl = canvas.toDataURL('image/jpeg');
-      toast.info("Face detected, processing...");
-      await sendImageToServer(dataUrl);
+
+      // Mostrar mensaje de procesamiento
+      const processingId = toast.info("Face detected, processing...", { autoClose: false });
+
+      // Enviar imagen al servidor
+      const result = await sendImageToServer(dataUrl);
+
+      // Cerrar mensaje de procesamiento
+      toast.dismiss(processingId);
+
+      // Mostrar mensaje de resultado
+      if (result && result.match) {
+        toast.success(`Match found: ${result.student.name}`);
+      } else {
+        toast.error("No match found");
+      }
     }
   };
 
@@ -57,14 +72,12 @@ const FaceRecognition = () => {
       }
 
       const result = await response.json();
-      if (result.match) {
-        toast.success(`Match found: ${result.student.name}`);
-      } else {
-        toast.error("No match found");
-      }
+      console.log('Server response:', result); // Agregar mensaje de consola para la respuesta del servidor
+      return result;
     } catch (error) {
       console.error('Error sending image to server:', error);
       toast.error("Error sending image to server");
+      return null;
     }
   };
 

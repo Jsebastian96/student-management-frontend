@@ -1,3 +1,4 @@
+/* Contenedor principal que centra el contenido vertical y horizontalmente */
 .container {
   display: flex;
   flex-direction: column;
@@ -9,17 +10,20 @@
   box-sizing: border-box;
 }
 
+/* Contenedor del video que asegura la relación de aspecto 16:9 */
 .video-container {
   position: relative;
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
   overflow: hidden;
   padding-top: 56.25%; /* 16:9 Aspect Ratio */
   border: 1px solid #ddd;
   border-radius: 10px;
+  background-color: #000;
   margin-bottom: 20px;
 }
 
+/* Estilo de la cámara que la hace adaptarse al contenedor */
 .camera {
   position: absolute;
   top: 0;
@@ -29,9 +33,45 @@
   object-fit: cover;
 }
 
+/* Estilo de los botones para hacerlos más atractivos */
 button {
   padding: 10px 20px;
-  font-size: 16px;
-  margin-bottom: 20px;
+  font-size: 18px;
+  color: #ffffff4b;
+  background-color:#083a39;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+}
+
+button:hover {
+  background-color: #007bff80;
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 5px #007bff80;
+}
+
+/* Estilo del contenedor de los mensajes Toast */
+.Toastify__toast-container {
+  font-size: 16px;
+}
+
+.Toastify__toast {
+  border-radius: 8px;
+}
+
+.Toastify__toast--info {
+  background-color: #e5f0f2;
+}
+
+.Toastify__toast--success {
+  background-color: #89eda0;
+}
+
+.Toastify__toast--error {
+  background-color: #ffffff;
 }
