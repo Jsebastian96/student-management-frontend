@@ -12,8 +12,8 @@ const AdminEnrollment = () => {
   useEffect(() => {
     const fetchStudentsAndCourses = async () => {
       try {
-        const studentsResponse = await axios.get('https://73b5-132-255-20-66.ngrok-free.app/api/estudiantes');
-        const coursesResponse = await axios.get('https://73b5-132-255-20-66.ngrok-free.app/api/materias');
+        const studentsResponse = await axios.get('https://73b5-132-255-20-66.ngrok-free.app/estudiantes');
+        const coursesResponse = await axios.get('https://73b5-132-255-20-66.ngrok-free.app/materias');
         setStudents(studentsResponse.data);
         setCourses(coursesResponse.data);
       } catch (error) {
