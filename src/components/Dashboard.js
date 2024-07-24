@@ -62,13 +62,13 @@ const Dashboard = ({ onLogout }) => {
       setLoading(true);
       try {
         const studentsResponse = await axios.get(
-          " https://6442-132-255-20-66.ngrok-free.app/api/estudiantes"
+          "http://localhost:3000/api/estudiantes"
         );
         const coursesResponse = await axios.get(
-          " https://6442-132-255-20-66.ngrok-free.app/api/materias"
+          "http://localhost:3000/api/materias"
         );
         const programsResponse = await axios.get(
-          " https://6442-132-255-20-66.ngrok-free.app/api/programas"
+          "http://localhost:3000/api/programas"
         );
 
         console.log("Students Response:", studentsResponse.data);
@@ -128,7 +128,7 @@ const Dashboard = ({ onLogout }) => {
 
   const handleEnrollStudent = async () => {
     try {
-      await axios.post("http://localhost:3000/api/inscripciones/admin-enroll", {
+      await axios.post("https://student-management-backend-mauve.vercel.app//api/inscripciones/admin-enroll", {
         estudiante_id: selectedStudent,
         materia_id: selectedCourse
       });
@@ -174,7 +174,7 @@ const Dashboard = ({ onLogout }) => {
         formData.append("photo_estudiante", newStudent.photo_estudiante);
       }
 
-      await axios.post("http://localhost:3000/api/estudiantes", formData, {
+      await axios.post("https://student-management-backend-mauve.vercel.app//api/estudiantes", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
