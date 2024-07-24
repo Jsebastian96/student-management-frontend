@@ -21,7 +21,7 @@ const StudentProfile = ({ user }) => {
   const fetchStudent = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`https://73b5-132-255-20-66.ngrok-free.app/api/estudiantes/${user.estudiante_id}`);
+      const response = await axios.get(`http://localhost:3000/api/estudiantes/${user.estudiante_id}`);
       console.log('Student Data:', response.data);
       setStudent(response.data);
       setLoading(false);
@@ -34,7 +34,7 @@ const StudentProfile = ({ user }) => {
   const handleOpenEnroll = async () => {
     setOpenEnroll(true);
     try {
-      const response = await axios.get('https://73b5-132-255-20-66.ngrok-free.app/api/materias');
+      const response = await axios.get('http://localhost:3000/api/materias');
       console.log('Courses fetched:', response.data.courses); 
       setCourses(response.data.courses); 
     } catch (error) {
@@ -59,7 +59,7 @@ const StudentProfile = ({ user }) => {
     try {
       const selectedCourse = courses.find(c => c._id === enrollment.course);
       if (selectedCourse && selectedCourse.cuposDisponibles > 0) {
-        await axios.post('https://73b5-132-255-20-66.ngrok-free.app/api/inscripciones', {
+        await axios.post('http://localhost:3000/api/inscripciones', {
           materia_id: enrollment.course,
           estudiante_id: user.estudiante_id
         });
@@ -111,7 +111,7 @@ const StudentProfile = ({ user }) => {
       updatedStudent.photo_estudiante = newPhoto.split(',')[1]; 
     }
     try {
-      await axios.put(`https://73b5-132-255-20-66.ngrok-free.app/api/estudiantes/${user.estudiante_id}`, updatedStudent);
+      await axios.put(`http://localhost:3000/api/estudiantes/${user.estudiante_id}`, updatedStudent);
       setSnackbar({ open: true, message: 'Profile updated successfully', severity: 'success' });
       setOpenEdit(false);
     } catch (error) {

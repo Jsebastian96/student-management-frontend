@@ -41,7 +41,7 @@ const CourseTable = () => {
   const fetchCourses = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get('https://73b5-132-255-20-66.ngrok-free.app/api/materias', {
+      const response = await axios.get('http://localhost:3000/api/materias', {
         params: { pageNumber: pageNumber + 1, pageSize: pageSize }
       });
       setCourses(response.data.courses);

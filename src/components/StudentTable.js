@@ -40,7 +40,7 @@ const StudentTable = () => {
   const fetchStudents = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get('https://73b5-132-255-20-66.ngrok-free.app/api/estudiantes', {
+      const response = await axios.get('http://localhost:3000/api/estudiantes', {
         params: { pageNumber: page + 1, pageSize: rowsPerPage, searchQuery, sortOption }
       });
       const { students = [], totalStudents = 0 } = response.data;
@@ -60,7 +60,7 @@ const StudentTable = () => {
   const fetchStudentPhoto = async (studentId) => {
     setPhotoLoading(true);
     try {
-      const response = await axios.get(`https://73b5-132-255-20-66.ngrok-free.app/api/estudiantes/${studentId}/photo`);
+      const response = await axios.get(`http://localhost:3000/api/estudiantes/${studentId}/photo`);
       setSelectedPhoto(response.data.photo_estudiante);
       setOpen(true);
       setPhotoLoading(false);
@@ -99,7 +99,7 @@ const StudentTable = () => {
 
   const handleDeleteStudent = async (studentId) => {
     try {
-      await axios.delete(`https://73b5-132-255-20-66.ngrok-free.app/estudiantes/${studentId}`);
+      await axios.delete(`http://localhost:3000/api/estudiantes/${studentId}`);
       fetchStudents();
     } catch (error) {
       console.error('Error deleting student:', error);
