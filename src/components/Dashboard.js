@@ -128,7 +128,7 @@ const Dashboard = ({ onLogout }) => {
 
   const handleEnrollStudent = async () => {
     try {
-      await axios.post("https://student-management-backend-mauve.vercel.app//api/inscripciones/admin-enroll", {
+      await axios.post("http://localhost:3000/api/inscripciones/admin-enroll", {
         estudiante_id: selectedStudent,
         materia_id: selectedCourse
       });
@@ -174,7 +174,7 @@ const Dashboard = ({ onLogout }) => {
         formData.append("photo_estudiante", newStudent.photo_estudiante);
       }
 
-      await axios.post("https://student-management-backend-mauve.vercel.app//api/estudiantes", formData, {
+      await axios.post("http://localhost:3000/api/estudiantes", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
