@@ -21,7 +21,7 @@ const StudentProfile = ({ user }) => {
   const fetchStudent = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:3000/api/estudiantes/${user.estudiante_id}`);
+      const response = await axios.get(`https://73b5-132-255-20-66.ngrok-free.app/api/estudiantes/${user.estudiante_id}`);
       console.log('Student Data:', response.data);
       setStudent(response.data);
       setLoading(false);
