@@ -1,103 +1,90 @@
-import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios'; 
+import React, { useEffect, useRef, useState } from 'react';
 import * as faceapi from 'face-api.js';
-import './css/FaceRecognition.css'; 
+import './css/FaceRecognition.css';
 
 const FaceRecognition = () => {
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
+  const videoRef = useRef();
+  const [isModelLoaded, setIsModelLoaded] = useState(false);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    // Cargar los modelos de face-api.js
     const loadModels = async () => {
-      const MODEL_URL = '/models';
-      await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-      await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-      await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-      console.log('Models loaded');
+      const MODEL_URL = process.env.PUBLIC_URL + '/models';
+      await faceapi.loadSsdMobilenetv1Model(MODEL_URL);
+      await faceapi.loadFaceLandmarkModel(MODEL_URL);
+      await faceapi.loadFaceRecognitionModel(MODEL_URL);
+      setIsModelLoaded(true);
     };
-    loadModels();
-  }, []);
 
-  useEffect(() => {
-    // Obtener acceso a la cámara del dispositivo
-    const startVideo = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
-        videoRef.current.srcObject = stream;
-      } catch (error) {
-        console.error('Error accessing the camera:', error);
-      }
+    loadModels();
+
+    const startVideo = () => {
+      navigator.mediaDevices
+        .getUserMedia({ video: {} })
+        .then((stream) => {
+          videoRef.current.srcObject = stream;
+        })
+        .catch((err) => console.error('Error accessing webcam: ', err));
     };
+
     startVideo();
   }, []);
 
-  useEffect(() => {
-    const captureAndRecognize = async () => {
-      if (!videoRef.current || !canvasRef.current) return;
-
-      const context = canvasRef.current.getContext('2d');
-      context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
-
-      const displaySize = { width: videoRef.current.width, height: videoRef.current.height };
-      faceapi.matchDimensions(canvasRef.current, displaySize);
-
-      const detections = await faceapi.detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
-
-      const resizedDetections = faceapi.resizeResults(detections, displaySize);
-      faceapi.draw.drawDetections(canvasRef.current, resizedDetections);
-      faceapi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections);
-
-      canvasRef.current.toBlob(async (blob) => {
-        if (!blob) {
-          console.error('No blob created');
+  const handleVideoPlay = () => {
+    const interval = setInterval(async () => {
+      if (isModelLoaded && videoRef.current) {
+        const videoWidth = videoRef.current.videoWidth;
+        const videoHeight = videoRef.current.videoHeight;
+        
+        if (videoWidth === 0 || videoHeight === 0) {
+          console.log('Video not ready yet, retrying...');
           return;
         }
+        
+        const displaySize = { width: videoWidth, height: videoHeight };
+        faceapi.matchDimensions(videoRef.current, displaySize);
 
-        setLoading(true);
+        const detections = await faceapi.detectAllFaces(videoRef.current).withFaceLandmarks().withFaceDescriptors();
+        const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
-        const formData = new FormData();
-        formData.append('photo', blob);
-
-        try {
-          const response = await axios.post('http://localhost:3001/api/recognition/recognize', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
-          if (response.data.match) {
-            setResult(`Match found: ${response.data.student.nombre_name} ${response.data.student.apellido}`);
-            setError(null);
-          } else {
-            setResult('No match found');
-            setError(null);
-          }
-        } catch (error) {
-          console.error('Error recognizing photo:', error);
-          setResult(null);
-          setError('Error recognizing photo');
-        } finally {
-          setLoading(false);
+        if (resizedDetections.length > 0) {
+          const canvas = faceapi.createCanvasFromMedia(videoRef.current);
+          canvas.getContext('2d').drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
+          const dataUrl = canvas.toDataURL('image/jpeg');
+          sendImageToServer(dataUrl);
         }
-      }, 'image/jpeg');
-    };
+      }
+    }, 1000);
 
-    // Capturar y reconocer cada 5 segundos
-    const intervalId = setInterval(captureAndRecognize, 5000);
+    return () => clearInterval(interval);
+  };
 
-    return () => clearInterval(intervalId);
-  }, [videoRef, canvasRef]);
+  const sendImageToServer = async (dataUrl) => {
+    try {
+      const response = await fetch('/api/recognize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ image: dataUrl }),
+      });
+
+      const result = await response.json();
+      if (result.match) {
+        setMessage(`Match found: ${result.student.name}`);
+      } else {
+        setMessage("No match found");
+      }
+    } catch (error) {
+      console.error('Error sending image to server:', error);
+      setMessage("Error sending image to server");
+    }
+  };
 
   return (
-    <div className="face-recognition-container">
-      <video ref={videoRef} autoPlay muted className="video" />
-      <canvas ref={canvasRef} className="canvas" width="640" height="480" />
-      {loading && <div className="loading">Processing...</div>}
-      {result && <div className="alert success">{result}</div>}
-      {error && <div className="alert error">{error}</div>}
+    <div className="container">
+      <video ref={videoRef} autoPlay muted onPlay={handleVideoPlay} className="camera" />
+      {message && <div className={`alert ${message.includes("No") ? "alert-error" : "alert-success"}`}>{message}</div>}
     </div>
   );
 };
