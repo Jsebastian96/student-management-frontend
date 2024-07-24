@@ -50,9 +50,9 @@ const FaceRecognition = () => {
 
       // Mostrar mensaje de resultado
       if (result && result.match) {
-        toast.success(`Match found: ${result.student.name}`);
+        toast.success(`Estudiante Encontrado: ${result.student.name}`);
       } else {
-        toast.error("No match found");
+        toast.error("No Encontrado");
       }
     }
   };
