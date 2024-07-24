@@ -62,13 +62,13 @@ const Dashboard = ({ onLogout }) => {
       setLoading(true);
       try {
         const studentsResponse = await axios.get(
-          "http://localhost:3000/api/estudiantes"
+          " https://6442-132-255-20-66.ngrok-free.app/api/estudiantes"
         );
         const coursesResponse = await axios.get(
-          "http://localhost:3000/api/materias"
+          " https://6442-132-255-20-66.ngrok-free.app/api/materias"
         );
         const programsResponse = await axios.get(
-          "http://localhost:3000/api/programas"
+          " https://6442-132-255-20-66.ngrok-free.app/api/programas"
         );
 
         console.log("Students Response:", studentsResponse.data);
