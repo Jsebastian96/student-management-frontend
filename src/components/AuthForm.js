@@ -15,10 +15,10 @@ const AuthForm = ({ onAuth }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://student-management-backend-zeta.vercel.app/api/auth/login', { hash_usuario, hash_password });
-      localStorage.setItem('token', response.data.token);
-      const decoded = jwtDecode(response.data.token); 
-      onAuth(response.data.token); 
+      const response = await axios.post('http://localhost:3000/api/auth/login', { hash_usuario, hash_password });
+      localStorage.setItem('token', response.data.token); // Guardar el token en localStorage
+      const decoded = jwtDecode(response.data.token); // Decodificar el token para obtener el rol del usuario
+      onAuth(response.data.token); // Pasar el token a la función onAuth
       // Redirigir al usuario según su rol
       if (decoded.role === 'admin') {
         navigate('/dashboard');
